@@ -1,3 +1,5 @@
+package il.ac.tau.cs.ds.proj1;
+
 /**
  *
  * AVLTree
@@ -9,6 +11,8 @@
 
 
 public class AVLTree {
+	
+	private static final int ERROR_CANNOT_INSERT = -1;
 	
 	AVLNode root = null;
 	int nodeCount = 0;
@@ -36,9 +40,9 @@ public class AVLTree {
 			if (p.getKey() == k) {
 				return p;
 			} else if (p.getKey() < k) {
-				p = p.getRight();
+				p = (AVLNode) p.getRight();
 			} else if (p.getKey() > k) {
-				p = p.getLeft();
+				p = (AVLNode) p.getLeft();
 			}
 		}
 		return p;
@@ -57,10 +61,10 @@ public class AVLTree {
 		return p.getValue();
 	}
 	
-	public static rotateRightAbout(AVLNode node) {
+	public static void rotateRightAbout(IAVLNode node) {
 		assert(node.isRealNode());
-		AVLNode A, B, C, D, E;
-		AVLNode nodeParent = node.getParent();
+		IAVLNode A, B, C, D, E;
+		IAVLNode nodeParent = node.getParent();
 		
 		A = node;
 		B = A.getLeft();
@@ -75,19 +79,19 @@ public class AVLTree {
 		A.setParent(B);
 		
 		B.setParent(nodeParent);
-		if (nodeParent) {
+		if (nodeParent.isRealNode()) {
 			assert(A == nodeParent.getLeft() || A == nodeParent.getRight());
 			if (A == nodeParent.getLeft()) nodeParent.setLeft(A);
 			else nodeParent.setRight(B);
 		}
 	}
 	
-	public static rotateLeftAbout(AVLNode node) {
+	public static void rotateLeftAbout(IAVLNode node) {
 		assert(node.isRealNode());
-		AVLNode A, B, C, D, E;
-		AVLNode nodeParent = node.getParent();
+		IAVLNode A, B, C, D, E;
+		IAVLNode nodeParent = node.getParent();
 		
-		B = getNode();
+		B = node;
 		D = B.getLeft();
 		A = B.getRight();
 		E = A.getLeft();
@@ -100,42 +104,35 @@ public class AVLTree {
 		B.setParent(A);
 		
 		A.setParent(nodeParent);
-		if (nodeParent) {
+		if (nodeParent.isRealNode()) {
 			assert(B == nodeParent.getLeft() || B == nodeParent.getRight());
 			if (B == nodeParent.getLeft()) nodeParent.setLeft(A);
 			else nodeParent.setRight(A);
 		}
 	}
-
-	/**
-	* public int insert(int k, String i)
-	*
-	* Inserts an item with key k and info i to the AVL tree.
-	* The tree must remain valid, i.e. keep its invariants.
-	* Returns the number of re-balancing operations, or 0 if no re-balancing operations were necessary.
-	* A promotion/rotation counts as one re-balance operation, double-rotation is counted as 2.
-	* Returns -1 if an item with key k already exists in the tree.
-	*/
-	public int insert(int k, String i) {
-		AVLNode location = searchNode(k);
-		if (!location) {
-			AVLNode node = AVLNode(k, i);
-			root = node;
-			nodeCount = 1;
-			return 0;
-		}
-		if (location.isRealNode()) return -1;
-
-		nodeCount++;
-		
-		location = location.getParent();
-		if (location.getKey() < node.getKey()) location.setLeft(node);
-		else location.setRight(node);
-		
-		int bf = locationParent.getBF();
-		
+	
+	private int insertHelper(AVLNode location, AVLNode node) {
+		if (!location.isRealNode()) return ERROR_CANNOT_INSERT;
 		int countOperations = 0;
+		if (location.getKey() < node.getKey()) {
+			if (!location.getLeft().isRealNode()) {
+				nodeCount++;
+				location.setLeft(node);
+			}
+			else countOperations = insertHelper((AVLNode)location.getLeft(), node);
+		} else if (location.getKey() > node.getKey()) {
+			if (!location.getRight().isRealNode()) {
+				nodeCount++;
+				location.setRight(node);
+			}
+			else countOperations = insertHelper((AVLNode)location.getRight(), node);
+		} else {
+			countOperations = ERROR_CANNOT_INSERT;
+		}
+		if (countOperations == ERROR_CANNOT_INSERT) return ERROR_CANNOT_INSERT;
 		
+		int bf = location.getBF();
+
 		if (bf > 1 && node.getKey() < location.getLeft().getKey()) {
 			rotateRightAbout(location);
 			countOperations += 1;
@@ -158,8 +155,20 @@ public class AVLTree {
 			countOperations += 2;
 		}
 		
-		
 		return countOperations;
+	}
+
+	/**
+	* public int insert(int k, String i)
+	*
+	* Inserts an item with key k and info i to the AVL tree.
+	* The tree must remain valid, i.e. keep its invariants.
+	* Returns the number of re-balancing operations, or 0 if no re-balancing operations were necessary.
+	* A promotion/rotation counts as one re-balance operation, double-rotation is counted as 2.
+	* Returns -1 if an item with key k already exists in the tree.
+	*/
+	public int insert(int k, String i) {
+		return insertHelper(root, new AVLNode(k, i));
 	}
 
 	/**
@@ -174,7 +183,7 @@ public class AVLTree {
 	public int delete(int k)
 	{
 		AVLNode location = searchNode(k);
-		if (!location || !location.isRealNode()) return -1;
+		if (location==null || !location.isRealNode()) return -1;
 		
 		nodeCount--;
 		
@@ -192,7 +201,7 @@ public class AVLTree {
 	public String min()
 	{
 		if (empty()) return null;
-		AVLNode p = root;
+		IAVLNode p = root;
 		while (p.getLeft() != null) {
 			p = p.getLeft();
 		}
@@ -208,19 +217,19 @@ public class AVLTree {
 	public String max()
 	{
 		if (empty()) return null;
-		AVLNode p = root;
+		IAVLNode p = root;
 		while (p.getRight() != null) {
 			p = p.getRight();
 		}
 		return p.getValue();
 	}
 	
-	private static int countNodesFromPointer(AVLNode p) {
+	private static int countNodesFromPointer(IAVLNode p) {
 		if (p==null || p.getKey() == -1) return 0;
 		return 1 + countNodesFromPointer(p.getLeft()) + countNodesFromPointer(p.getRight());
 	}
 	
-	private static AVLNode[] nodePointerToArray(AVLNode ptr) {
+	private static AVLNode[] nodePointerToArray(AVLNode p) {
 		int countNodes = countNodesFromPointer(p);
 		if (countNodes == 0) return null;
 		AVLNode nodes[] = new AVLNode[countNodes];
@@ -228,14 +237,15 @@ public class AVLTree {
 		
 		AVLNode s[] = new AVLNode[countNodes];
 		int s_top_idx = 0;
-		Node ptr = p;
+		
+		
 		
 		while (p != null || s_top_idx > 0) {
 			while (p != null) {
 				s[s_top_idx] = p;
 				s_top_idx++;
 				
-				p = p.getLeft();
+				p = (AVLNode) p.getLeft();
 			}
 			
 			p = s[s_top_idx];
@@ -245,7 +255,7 @@ public class AVLTree {
 			nodes[keys_idx] = p.getKey();
 			nodes_idx++;
 			
-			p = p.getRight();
+			p = (AVLNode) p.getRight();
 		}
 		
 		return nodes;
@@ -299,7 +309,7 @@ public class AVLTree {
 	public int[] keysToArray()
 	{
 		AVLNode nodes[] = this.treeToArray();
-		if (!nodes) return null; //FIXME empty array?
+		if (nodes == null) return null; //FIXME empty array?
 		
 		int keys[] = new int[nodes.length];
 		for (int i=0; i<nodes.length; i++) keys[i]=nodes[i].getKey();
@@ -316,9 +326,9 @@ public class AVLTree {
 	public String[] infoToArray()
 	{
 		AVLNode nodes[] = this.treeToArray();
-		if (!nodes) return null; //FIXME empty array?
+		if (nodes == null) return null; //FIXME empty array?
 		
-		int info[] = new int[nodes.length];
+		String info[] = new String[nodes.length];
 		for (int i=0; i<nodes.length; i++) info[i]=nodes[i].getValue();
 		return info;
 	}
@@ -338,7 +348,7 @@ public class AVLTree {
 	*
 	* Returns the root AVL node, or null if the tree is empty
 	*/
-	public AVLNode getRoot()
+	public IAVLNode getRoot()
 	{
 		if (this.empty()) return null; //redundant
 		return this.root;
@@ -355,16 +365,19 @@ public class AVLTree {
 	*/	
 	public AVLTree[] split(int x)
 	{
-		AVLNode parent = this.search(x);
+		AVLNode parent = this.searchNode(x);
 		assert(parent != null);
 		
-		AVLNode root1 = parent.getLeft();
-		AVLNode root2 = parent.getRight();
+		AVLNode root1 = (AVLNode) parent.getLeft();
+		AVLNode root2 = (AVLNode) parent.getRight();
 		
 		int nodeCount1 = countNodesFromPointer(root1);
 		int nodeCount2 = countNodesFromPointer(root2);
 		
-		return {new AVLTree(root1, nodeCount1), new AVLTree(root2, nodeCount2}; 
+		AVLTree[] trees = new AVLTree[2];
+		trees[0] = new AVLTree(root1, nodeCount1);
+		trees[1] = new AVLTree(root2, nodeCount2);
+		return trees;
 	}
 	
 	/**
@@ -376,7 +389,7 @@ public class AVLTree {
 	* precondition: keys(t) < x < keys() or keys(t) > x > keys(). t/tree might be empty (rank = -1).
 	* postcondition: none
 	*/	
-	public int join(AVLNode x, AVLTree t)
+	public int join(IAVLNode x, AVLTree t)
 	{
 		return -1;
 	}
@@ -428,8 +441,9 @@ public class AVLTree {
 			this.BF = 0;
 			
 			if (key != -1) {
-				this.left = AVLNode(-1, null);
-				this.right = AVLNode(-1, null);
+				this.left = new AVLNode(-1, null);
+				this.right = new AVLNode(-1, null);
+				this.parent = new AVLNode(-1, null);
 				this.left.setParent(this);
 				this.right.setParent(this);
 				this.height = 0;
@@ -438,10 +452,20 @@ public class AVLTree {
 			} else {
 				this.left = null;
 				this.right = null;
+				this.parent = null;
 				this.height = -1;
 				this.size = 0;
 				this.virtual = true;
 			}
+		}
+		
+		public AVLNode(IAVLNode parent) {
+			this.left = null;
+			this.right = null;
+			this.parent = (AVLNode) parent;
+			this.height = -1;
+			this.size = 0;
+			this.virtual = true;
 		}
 
 		public int getKey() { return this.key; }
@@ -451,9 +475,9 @@ public class AVLTree {
 		public IAVLNode getRight() { return this.right; }
 		public int getHeight() { return this.height; }
 		
-		public void setLeft(AVLNodeBase node) {
+		public void setLeft(IAVLNode node) {
 			AVLNode old = this.left;
-			this.left = node;
+			this.left = (AVLNode) node;
 			this.left.setParent(this);
 			try {
 				assertAVL();
@@ -464,11 +488,11 @@ public class AVLTree {
 			}
 			updateSize();
 			updateHeight();
-			node.setIsParentLeft(true);
+			((AVLNode)node).setIsParentLeft(true); // FIXME pray to god this works
 		}
-		public void setRight(AVLNode node) {
+		public void setRight(IAVLNode node) {
 			AVLNode old = this.right;
-			this.right = node;
+			this.right = (AVLNode) node;
 			this.right.setParent(this);
 			try {
 				assertAVL();
@@ -479,11 +503,11 @@ public class AVLTree {
 			}
 			updateSize();
 			updateHeight();
-			node.setIsParentLeft(false);
+			((AVLNode)node).setIsParentLeft(false); // FIXME pray to god this works
 		}
 		
-		public void setParent(AVLNode node) {
-			this.parent = node;
+		public void setParent(IAVLNode node) {
+			this.parent = (AVLNode) node;
 		}
 		public void setHeight(int height) {
 			assert(isRealNode());
@@ -523,7 +547,7 @@ public class AVLTree {
 		public void setIsParentLeft(boolean v) { this.isParentLeft = v; }
 		public boolean getIsParentLeft() { return this.isParentLeft; }
 		
-		public void getSize() { return this.size; }
+		public int getSize() { return this.size; }
 		//public void setKey(int key) { this.key = key; }
 		
 	}
