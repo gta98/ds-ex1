@@ -224,41 +224,14 @@ public class AVLTree {
 		return p.getValue();
 	}
 	
-	private static int countNodesFromPointer(IAVLNode p) {
-		if (p==null || p.getKey() == -1) return 0;
-		return 1 + countNodesFromPointer(p.getLeft()) + countNodesFromPointer(p.getRight());
-	}
-	
-	private static AVLNode[] nodePointerToArray(AVLNode p) {
-		int countNodes = countNodesFromPointer(p);
-		if (countNodes == 0) return null;
-		AVLNode nodes[] = new AVLNode[countNodes];
-		int nodes_idx = 0;
-		
-		AVLNode s[] = new AVLNode[countNodes];
-		int s_top_idx = 0;
-		
-		
-		
-		while (p != null || s_top_idx > 0) {
-			while (p != null) {
-				s[s_top_idx] = p;
-				s_top_idx++;
-				
-				p = (AVLNode) p.getLeft();
-			}
-			
-			p = s[s_top_idx];
-			s[s_top_idx] = null;
-			s_top_idx--;
-			
-			nodes[keys_idx] = p.getKey();
-			nodes_idx++;
-			
-			p = (AVLNode) p.getRight();
-		}
-		
-		return nodes;
+	/**
+	 * private static int getNodeCountFromPointer(IAVLNode p)
+	 * 
+	 * Given generic IAVLNode, returns subtree size in O(n)
+	 */
+	private static int getNodeCountFromPointer(IAVLNode p) {
+		if (p==null || !p.isRealNode()) return 0;
+		return 1 + getNodeCountFromPointer(p.getLeft()) + getNodeCountFromPointer(p.getRight());
 	}
 	
 	/**
@@ -267,38 +240,34 @@ public class AVLTree {
 	* Returns a list of all the nodes in the tree, sorted by key,
 	* or null if the tree is empty
 	*/
+	// FIXME
+	// this might be possible more efficiently
+	// by updating this list on the go, while inserting and deleting
+	// however without a stack, we might hurt worst case complexity of insert/delete
 	private AVLNode[] treeToArray() {
-		return nodePointerToArray(this.root);
-	}
-	/*private AVLNode[] treeToArray() {
-		if (this.empty()) return null; //FIXME empty array?
-		AVLNode nodes[] = new AVLNode[this.size()];
-		int nodes_idx = 0;
+		AVLNode[] arr = new AVLNode[nodeCount];
+		AVLNode[] stack_pending = new AVLNode[nodeCount];
+		AVLNode p = root;
+		int stack_pending_size = 0;
+		int arr_idx = 0;
 		
-		AVLNode s[] = new AVLNode[this.size()];
-		int s_top_idx = 0;
-		Node p = this.root;
-		
-		while (p != null || s_top_idx > 0) {
-			while (p != null) {
-				s[s_top_idx] = p;
-				s_top_idx++;
-				
-				p = p.getLeft();
+		while (stack_pending_size>0 || p.isRealNode()) {
+			if (p.isRealNode()) {
+				stack_pending[stack_pending_size] = p;
+				stack_pending_size++;
+				p = (AVLNode) p.getLeft();
+			} else {
+				p = stack_pending[stack_pending_size-1];
+				stack_pending_size--;
+				arr[arr_idx] = p;
+				arr_idx++;
+				p = (AVLNode) p.getRight();
 			}
-			
-			p = s[s_top_idx];
-			s[s_top_idx] = null;
-			s_top_idx--;
-			
-			nodes[keys_idx] = p.getKey();
-			nodes_idx++;
-			
-			p = p.getRight();
 		}
 		
-		return nodes;
-	}*/
+		return arr;
+	}
+	
 
 	/**
 	* public int[] keysToArray()
@@ -371,8 +340,8 @@ public class AVLTree {
 		AVLNode root1 = (AVLNode) parent.getLeft();
 		AVLNode root2 = (AVLNode) parent.getRight();
 		
-		int nodeCount1 = countNodesFromPointer(root1);
-		int nodeCount2 = countNodesFromPointer(root2);
+		int nodeCount1 = getNodeCountFromPointer(root1);
+		int nodeCount2 = getNodeCountFromPointer(root2);
 		
 		AVLTree[] trees = new AVLTree[2];
 		trees[0] = new AVLTree(root1, nodeCount1);
