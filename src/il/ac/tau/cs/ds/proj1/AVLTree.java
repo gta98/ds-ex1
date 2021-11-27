@@ -12,7 +12,8 @@ package il.ac.tau.cs.ds.proj1;
 
 public class AVLTree {
 	
-	private static final int ERROR_CANNOT_INSERT = -1;
+	private static final int	ERROR_CANNOT_INSERT = -1,
+								ERROR_CANNOT_DELETE = -1;
 	
 	AVLNode root = null;
 	int nodeCount = 0;
@@ -113,6 +114,36 @@ public class AVLTree {
 		}
 	}
 	
+	private int rebalance(AVLNode location, AVLNode node) {
+		int countOperations = 0;
+		
+		int bf = location.getBF();
+
+		if (bf > 1 && node.getKey() < location.getLeft().getKey()) {
+			rotateRightAbout(location);
+			countOperations += 1;
+		}
+		
+		if (bf > 1 && node.getKey() > location.getLeft().getKey()) {
+			rotateLeftAbout(location.getLeft());
+			rotateRightAbout(location);
+			countOperations += 2;
+		}
+		
+		if (bf < -1 && node.getKey() > location.getRight().getKey()) {
+			rotateLeftAbout(location);
+			countOperations += 1;
+		}
+		
+		if (bf < -1 && node.getKey() < location.getRight().getKey()) {
+			rotateRightAbout(location.getRight());
+			rotateLeftAbout(location);
+			countOperations += 2;
+		}
+		
+		return countOperations;
+	}
+	
 	private int insertHelper(AVLNode location, AVLNode node) {
 		if (!location.isRealNode()) return ERROR_CANNOT_INSERT;
 		int countOperations = 0;
@@ -133,29 +164,7 @@ public class AVLTree {
 		}
 		if (countOperations == ERROR_CANNOT_INSERT) return ERROR_CANNOT_INSERT;
 		
-		int bf = location.getBF();
-
-		if (bf > 1 && node.getKey() < location.getLeft().getKey()) {
-			rotateRightAbout(location);
-			countOperations += 1;
-		}
-		
-		if (bf < -1 && node.getKey() > node.getRight().getKey()) {
-			rotateLeftAbout(location);
-			countOperations += 1;
-		}
-		
-		if (bf > 1 && node.getKey() > location.getLeft().getKey()) {
-			rotateLeftAbout(location.getLeft());
-			rotateRightAbout(location);
-			countOperations += 2;
-		}
-		
-		if (bf < -1 && node.getKey() < node.getRight().getKey()) {
-			rotateRightAbout(location.getRight());
-			rotateLeftAbout(location);
-			countOperations += 2;
-		}
+		countOperations += rebalance(location, node);
 		
 		return countOperations;
 	}
@@ -170,10 +179,76 @@ public class AVLTree {
 	* Returns -1 if an item with key k already exists in the tree.
 	*/
 	public int insert(int k, String i) {
-		return insertHelper(root, new AVLNode(k, i));
+		if (root == null) {
+			root = new AVLNode(k, i);
+			return 0;
+		} else return insertHelper(root, new AVLNode(k, i));
+	}
+	
+	private int deleteHelper(AVLNode location, AVLNode node) {
+		if (!location.isRealNode()) return ERROR_CANNOT_DELETE;
+		int countOperations = 0;
+		if (location.getKey() < node.getKey()) {
+			if (!location.getLeft().isRealNode()) {
+				return ERROR_CANNOT_DELETE;
+			}
+			else countOperations = deleteHelper((AVLNode)location.getLeft(), node);
+		} else if (location.getKey() > node.getKey()) {
+			if (!location.getRight().isRealNode()) {
+				return ERROR_CANNOT_DELETE;
+			}
+			else countOperations = deleteHelper((AVLNode)location.getRight(), node);
+		} else {
+			AVLNode deadMan = location;
+			AVLNode deadManParent = (AVLNode) deadMan.getParent();
+			
+			if (!deadMan.getLeft().isRealNode() || !deadMan.getRight().isRealNode()) {
+				// one or zero children
+				AVLNode tmp = null;
+				if      (deadMan.getLeft().isRealNode())  tmp = (AVLNode) deadMan.getLeft();
+				else if (deadMan.getRight().isRealNode()) tmp = (AVLNode) deadMan.getRight();
+				
+				if (tmp == null) { // no children
+					if (!deadManParent.isRealNode()) {
+						root = null;
+						nodeCount--;
+						assert(nodeCount==0);
+						return countOperations;
+					} else if (deadMan == deadManParent.getLeft()) {
+						deadManParent.setLeft(new AVLNode(deadManParent));
+						nodeCount--;
+					} else if (deadMan == deadManParent.getRight()) {
+						deadManParent.setRight(new AVLNode(deadManParent));
+						nodeCount--;
+					} else {
+						System.out.println("Deletion from corrupt tree");
+						assert(false);
+					}
+				} else { // one child
+					location.copyFrom(tmp);
+					location.setLeft(tmp.getLeft());
+					location.setRight(tmp.getRight());
+				}
+			} else {
+				// two children
+				AVLNode inOrderSuccessor = (AVLNode) minNodeBelow(location.getRight());
+				location.copyFrom(inOrderSuccessor);
+				countOperations += deleteHelper((AVLNode)location.getRight(), inOrderSuccessor);
+			}
+		}
+			
+		if (root == null) return countOperations;
+		
+		if (location.getLeft().getHeight()>location.getRight().getHeight())
+			location.setHeight(1+location.getLeft().getHeight());
+		else
+			location.setHeight(1+location.getRight().getHeight());
+		
+		countOperations += rebalance(location, node);
+		
+		return countOperations;
 	}
 
-	// FIXME not implemented (yes, really)
 	/**
 	* public int delete(int k)
 	*
@@ -185,14 +260,16 @@ public class AVLTree {
 	*/
 	public int delete(int k)
 	{
-		AVLNode location = searchNode(k);
-		if (location==null || !location.isRealNode()) return -1;
+		if (root == null) return ERROR_CANNOT_DELETE;
+		AVLNode deadMan = new AVLNode(k, "");
+		return deleteHelper(root, deadMan);
+	}
+	
+	
+	private static IAVLNode minNodeBelow(IAVLNode p) {
+		if (p.getLeft()==null || !p.getLeft().isRealNode()) return p;
+		return minNodeBelow(p.getLeft());
 		
-		nodeCount--;
-		
-		
-		
-		return 421;	// to be replaced by student code
 	}
 
 	/**
@@ -523,6 +600,11 @@ public class AVLTree {
 		
 		public int getSize() { return this.size; }
 		//public void setKey(int key) { this.key = key; }
+		
+		public void copyFrom(AVLNode node) {
+			this.key = node.getKey();
+			this.info = node.getValue();
+		}
 		
 	}
 
