@@ -3,7 +3,7 @@ package il.ac.tau.cs.ds.proj1;
 import il.ac.tau.cs.ds.proj1.AVLTree;
 
 interface IToster {
-	public int rape();
+	public int rope();
 }
 
 class Toster implements IToster {
@@ -14,12 +14,13 @@ class Toster implements IToster {
 	}
 	
 	@Override
-	public int rape() {
+	public int rope() {
 		return 7;
 	}
 }
 
 public class Tester {
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		System.out.println("Hello");
 		Toster oven = new Toster();

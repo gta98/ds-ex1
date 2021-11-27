@@ -63,6 +63,7 @@ public class AVLTree {
 	
 	public static void rotateRightAbout(IAVLNode node) {
 		assert(node.isRealNode());
+		@SuppressWarnings("unused")
 		IAVLNode A, B, C, D, E;
 		IAVLNode nodeParent = node.getParent();
 		
@@ -88,6 +89,7 @@ public class AVLTree {
 	
 	public static void rotateLeftAbout(IAVLNode node) {
 		assert(node.isRealNode());
+		@SuppressWarnings("unused")
 		IAVLNode A, B, C, D, E;
 		IAVLNode nodeParent = node.getParent();
 		
@@ -171,6 +173,7 @@ public class AVLTree {
 		return insertHelper(root, new AVLNode(k, i));
 	}
 
+	// FIXME not implemented (yes, really)
 	/**
 	* public int delete(int k)
 	*
@@ -323,6 +326,7 @@ public class AVLTree {
 		return this.root;
 	}
 	
+	// FIXME not implemented (yes, really)
 	/**
 	* public AVLTree[] split(int x)
 	*
@@ -349,6 +353,7 @@ public class AVLTree {
 		return trees;
 	}
 	
+	// FIXME not implemented
 	/**
 	* public int join(AVLNode x, AVLTree t)
 	*
