@@ -18,9 +18,86 @@ public class AVLTree {
 	AVLNode root = null;
 	int nodeCount = 0;
 	
+	public AVLTree() {
+		this.root = null;
+		this.nodeCount = 0;
+	}
+	
 	public AVLTree(AVLNode root, int nodeCount) {
 		this.root = root;
 		this.nodeCount = nodeCount;
+	}
+	
+	public static boolean isValidHierarchy(IAVLNode p) { 
+		if (p==null || (!p.isRealNode() && p.getLeft()==null && p.getRight()==null && p.getHeight()==-1)) {
+			return true;
+		}
+		if (p.getLeft().getParent()!=p) {
+			return false;
+		}
+		if (p.getRight().getParent()!=p) {
+			return false;
+		}
+		return isValidHierarchy(p.getLeft()) && isValidHierarchy(p.getRight());
+	}
+	
+	public static boolean isValidBST(IAVLNode p) {
+		if (p==null || (!p.isRealNode() && p.getLeft()==null && p.getRight()==null)) {
+			return true;
+		}
+		if (p.getLeft().isRealNode() && p.getLeft().getKey()>p.getKey()) {
+			return false;
+		}
+		if (p.getRight().isRealNode() && p.getRight().getKey()<p.getKey()) {
+			return false;
+		}
+		return isValidBST(p.getLeft()) && isValidBST(p.getRight());
+	}
+	
+	public static boolean isValidRank(IAVLNode p) {
+		if (p==null || (!p.isRealNode() && p.getLeft()==null && p.getRight()==null && p.getHeight()==-1)) {
+			return true;
+		}
+		int diffL, diffR;
+		diffL = p.getHeight()-p.getLeft().getHeight();
+		diffR = p.getHeight()-p.getRight().getHeight();
+		if ((diffL == 1 && diffR == 1) ||
+				(diffL == 1 && diffR == 2) ||
+				(diffL == 2 && diffR == 1)) {
+			return isValidRank(p.getLeft()) && isValidRank(p.getRight());
+		}
+		System.out.println("Ranks invalid - put breakpoint here");
+		return false;
+	}
+	
+	public static boolean isValidAVL(IAVLNode p) {
+		if (!isValidHierarchy(p)) {
+			return false;
+		}
+		if (!isValidBST(p)) {
+			return false;
+		}
+		if (!isValidRank(p)) {
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean isValidAVL() {
+		return isValidAVL(root);
+	}
+	
+	public static void printInOrder(IAVLNode p) {
+		if (p==null || (!p.isRealNode() && p.getLeft()==null && p.getRight()==null && p.getHeight()==-1)) {
+			return;
+		}
+		printInOrder(p.getLeft());
+		System.out.println(p.getValue());
+		printInOrder(p.getRight());
+	}
+	
+	public void printInOrder() {
+		printInOrder(root);
 	}
 
 	/**
@@ -442,6 +519,44 @@ public class AVLTree {
 	*/	
 	public int join(IAVLNode x, AVLTree t)
 	{
+		AVLTree T1, T2;
+		if (x.getKey() < root.getKey()) {
+			// case 1: keys(t) < x < keys()
+			T1 = t;
+			T2 = this;
+		} else {
+			// case 2: keys(t) > x > keys()
+			T1 = this;
+			T2 = t;
+		}
+		
+		AVLNode a, b, c;
+		
+		if (T1.getRoot().getHeight() <= T2.getRoot().getHeight()) {
+			int k = T1.getRoot().getHeight();
+			a = (AVLNode) T1.getRoot();
+			b = (AVLNode) T2.getRoot();
+			while (b.getHeight() > k) {
+				if (b.getLeft().isRealNode()) b=(AVLNode)b.getLeft();
+				else                          b=(AVLNode)b.getRight();
+			}
+			assert(b.getHeight()==k || b.getHeight()==k-1);
+			c = (AVLNode) b.getParent();
+			x.setLeft(a);
+			// b doesnt have to be the left child of c
+			// but if it's not, then by definition c has no left child
+			// because we traversed by going left
+			// also, this can't go on for more than 2 steps due to BF
+			c.setLeft(x);
+			x.setRight(b);
+			x.setHeight(k+1);
+			assert(c.getHeight()==k+1 || c.getHeight()==k+2);
+			if (c.getHeight()==k+1) {
+				rebalance(c, c);
+			}
+		} else {
+			
+		}
 		return -1;
 	}
 
