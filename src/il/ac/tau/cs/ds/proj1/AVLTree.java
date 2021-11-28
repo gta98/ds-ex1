@@ -663,24 +663,24 @@ public class AVLTree {
 	{
 		int complexity;
 		if (this.empty() && t.empty()) {
-			System.out.println("Scenario 1");
+			//System.out.println("Scenario 1");
 			this.root = (AVLNode) x;
 			this.nodeCount = 1;
 			return 1;
 		} else if (this.empty()) {
-			System.out.println("Scenario 2");
+			//System.out.println("Scenario 2");
 			complexity = 2+t.getRoot().getHeight();
 			t.insert(x.getKey(), x.getValue());
 			this.root = (AVLNode) t.getRoot();
 			this.nodeCount = t.size();
 			return complexity;
 		} else if (t.empty()) {
-			System.out.println("Scenario 3");
+			//System.out.println("Scenario 3");
 			complexity = 2+this.getRoot().getHeight();
 			this.insert(x.getKey(), x.getValue());
 			return complexity;
 		}
-		System.out.println("Scenario 4");
+		//System.out.println("Scenario 4");
 		
 		complexity = Math.abs(this.root.getHeight() - t.getRoot().getHeight()) + 1;
 		int newCount = this.nodeCount + t.size() + 1;

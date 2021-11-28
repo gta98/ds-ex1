@@ -9,32 +9,25 @@ import java.util.Random;
 
 import il.ac.tau.cs.ds.proj1.AVLTree;
 
-interface IToster {
-	public int rope();
-}
-
-class Toster implements IToster {
-	public int size;
-	public IToster oven;
-	
-	public Toster() {
-		size = 8;
-	}
-	
-	@Override
-	public int rope() {
-		return 7;
-	}
-	
-	public IToster getOven() { return oven; }
-	public void setOven(IToster mOven) { this.oven = mOven; }
-}
-
-
-
 public class Tester {
 	
 	public static final long SEED = 4206969;
+
+	@SuppressWarnings("unused")
+	public static void main(String[] args) {
+		/// INSERT TESTING HERE ///
+		
+		System.out.println("Hello World!");
+		
+		Question1 q1 = new Question1(); // maybe add randomized parameters here
+		Question2 q2 = new Question2();
+		
+		q1.test();
+		q2.test();
+		
+		/// INSERT TESTING HERE ///
+	}
+
 	
 	enum AVLTaskType {
 		INSERT,
@@ -131,11 +124,10 @@ public class Tester {
 			System.out.println(String.format("success=%d, failure=%d", success, failure));
 		}
 	}
-
-	@SuppressWarnings("unused")
-	public static void main(String[] args) {
+	
+	public static void randomActions() {
 		//insertSpecificList();
-		AVLTree[] trees = insertRandomStress(8,8);
+		AVLTree[] trees = insertRandomStress(17,17);
 		AVLTree tree = trees[0];
 		int[] keys = tree.keysToArray();
 		//deleteRandomOrder(tree, keys, SEED*2);
@@ -280,4 +272,26 @@ public class Tester {
 		Toster totem = (Toster) bomba;
 		System.out.println("ddodododododododo " + String.valueOf(bomba.getClass()));
 	}
+}
+
+
+interface IToster {
+	public int rope();
+}
+
+class Toster implements IToster {
+	public int size;
+	public IToster oven;
+	
+	public Toster() {
+		size = 8;
+	}
+	
+	@Override
+	public int rope() {
+		return 7;
+	}
+	
+	public IToster getOven() { return oven; }
+	public void setOven(IToster mOven) { this.oven = mOven; }
 }
