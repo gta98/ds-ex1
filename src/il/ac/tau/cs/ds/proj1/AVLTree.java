@@ -1,5 +1,6 @@
 package il.ac.tau.cs.ds.proj1;
 
+
 /**
  *
  * AVLTree
@@ -28,7 +29,7 @@ public class AVLTree {
 		this.nodeCount = nodeCount;
 	}
 	
-	public static boolean isValidHierarchy(IAVLNode p) { 
+	public boolean isValidHierarchy(IAVLNode p) { 
 		if (p==null || (!p.isRealNode() && p.getLeft()==null && p.getRight()==null && p.getHeight()==-1)) {
 			return true;
 		}
@@ -41,7 +42,7 @@ public class AVLTree {
 		return isValidHierarchy(p.getLeft()) && isValidHierarchy(p.getRight());
 	}
 	
-	public static boolean isValidBST(IAVLNode p) {
+	public boolean isValidBST(IAVLNode p) {
 		if (p==null || (!p.isRealNode() && p.getLeft()==null && p.getRight()==null)) {
 			return true;
 		}
@@ -54,7 +55,7 @@ public class AVLTree {
 		return isValidBST(p.getLeft()) && isValidBST(p.getRight());
 	}
 	
-	public static boolean isValidRank(IAVLNode p) {
+	public boolean isValidRank(IAVLNode p) {
 		if (p==null || (!p.isRealNode() && p.getLeft()==null && p.getRight()==null && p.getHeight()==-1)) {
 			return true;
 		}
@@ -66,11 +67,12 @@ public class AVLTree {
 				(diffL == 2 && diffR == 1)) {
 			return isValidRank(p.getLeft()) && isValidRank(p.getRight());
 		}
+		System.out.println("Root is " + root.getValue());
 		System.out.println("Ranks invalid - put breakpoint here");
 		return false;
 	}
 	
-	public static boolean isValidAVL(IAVLNode p) {
+	public boolean isValidAVL(IAVLNode p) {
 		if (!isValidHierarchy(p)) {
 			return false;
 		}
@@ -78,6 +80,9 @@ public class AVLTree {
 			return false;
 		}
 		if (!isValidRank(p)) {
+			return false;
+		}
+		if (debugSize(p)!=size()) {
 			return false;
 		}
 		return true;
@@ -107,7 +112,8 @@ public class AVLTree {
 	*
 	*/
 	public boolean empty() {
-		return root == null || !root.isRealNode();
+		assert((root==null&&nodeCount==0) || (root!=null&&nodeCount>0));
+		return root == null || nodeCount==0;
 	}
 	
 	public AVLNode searchNode(int k)
@@ -139,7 +145,31 @@ public class AVLTree {
 		return p.getValue();
 	}
 	
-	public static void rotateRightAbout(IAVLNode node) {
+	private int leftLeftCase(AVLNode node) {
+		//System.out.println("leftLeftCase() - START");
+		rotateRightAbout(node);
+		return 1;
+	}
+
+	private int leftRightCase(AVLNode node) {
+		//System.out.println("leftRightCase() - START");
+		rotateLeftAbout(node.getLeft());
+		return 1 + leftLeftCase(node);
+	}
+
+	private int rightRightCase(AVLNode node) {
+		//System.out.println("rightRightCase() - START");
+		rotateLeftAbout(node);
+		return 1;
+	}
+
+	private int rightLeftCase(AVLNode node) {
+		//System.out.println("rightLeftCase() - START");
+		rotateRightAbout(node.getRight());
+		return 1 + rightRightCase(node);
+	}
+	
+	public void rotateRightAbout(IAVLNode node) {
 		assert(node.isRealNode());
 		@SuppressWarnings("unused")
 		IAVLNode A, B, C, D, E;
@@ -158,14 +188,27 @@ public class AVLTree {
 		A.setParent(B);
 		
 		B.setParent(nodeParent);
-		if (nodeParent.isRealNode()) {
+
+		assert(nodeParent==null || nodeParent.isRealNode());
+		if (nodeParent == null) {
+			// A was root
+			root = (AVLNode) B;
+			//System.out.println("Set root");
+		} else if (nodeParent.isRealNode()) {
+			//System.out.println("lala");
 			assert(A == nodeParent.getLeft() || A == nodeParent.getRight());
-			if (A == nodeParent.getLeft()) nodeParent.setLeft(A);
+			if (A == nodeParent.getLeft()) nodeParent.setLeft(B);
 			else nodeParent.setRight(B);
 		}
+		
+		((AVLNode)A).updateHeight();
+		((AVLNode)B).updateHeight();
+		//if (nodeParent != null) ((AVLNode)nodeParent).updateHeight();
+		
+		//return B
 	}
 	
-	public static void rotateLeftAbout(IAVLNode node) {
+	public void rotateLeftAbout(IAVLNode node) {
 		assert(node.isRealNode());
 		@SuppressWarnings("unused")
 		IAVLNode A, B, C, D, E;
@@ -184,53 +227,66 @@ public class AVLTree {
 		B.setParent(A);
 		
 		A.setParent(nodeParent);
-		if (nodeParent.isRealNode()) {
+		
+		assert(nodeParent==null || nodeParent.isRealNode());
+		if (nodeParent == null) {
+			// B was root
+			root = (AVLNode) A;
+		} else if (nodeParent.isRealNode()) {
 			assert(B == nodeParent.getLeft() || B == nodeParent.getRight());
 			if (B == nodeParent.getLeft()) nodeParent.setLeft(A);
 			else nodeParent.setRight(A);
 		}
+		
+		((AVLNode)B).updateHeight();
+		((AVLNode)A).updateHeight();
+		//if (nodeParent != null) ((AVLNode)nodeParent).updateHeight();
+		
+		//return A
 	}
 	
-	private int rebalance(AVLNode location, AVLNode node) {
-		int countOperations = 0;
-		
-		int bf = location.getBF();
+	private int balance(AVLNode node) {
+		int bf = node.getBF();
+		//System.out.println("BF of " + node.getValue() + " is " + String.valueOf(bf));
+		AVLNode left = (AVLNode) node.getLeft();
+		AVLNode right = (AVLNode) node.getRight();
+		assert(-2 <= node.getBF() && node.getBF() <= 2);
 
-		if (bf > 1 && node.getKey() < location.getLeft().getKey()) {
-			rotateRightAbout(location);
-			countOperations += 1;
+		int countRotations = 0;
+
+		AVLNode newNode = null;
+
+		if (bf == -2) {
+			if (left.getBF() <= 0) {
+				countRotations += leftLeftCase(node);
+			} else {
+				countRotations += leftRightCase(node);
+			}
+		} else if (bf == 2) {
+			if (right.getBF() >= 0) {
+				countRotations += rightRightCase(node);
+			} else {
+				countRotations += rightLeftCase(node);
+			}
 		}
-		
-		if (bf > 1 && node.getKey() > location.getLeft().getKey()) {
-			rotateLeftAbout(location.getLeft());
-			rotateRightAbout(location);
-			countOperations += 2;
+
+		if (countRotations > 0) {
+			//System.out.println("Performed " + String.valueOf(countRotations) + " rotations for " + node.getValue());
 		}
-		
-		if (bf < -1 && node.getKey() > location.getRight().getKey()) {
-			rotateLeftAbout(location);
-			countOperations += 1;
-		}
-		
-		if (bf < -1 && node.getKey() < location.getRight().getKey()) {
-			rotateRightAbout(location.getRight());
-			rotateLeftAbout(location);
-			countOperations += 2;
-		}
-		
-		return countOperations;
+
+		return countRotations;
 	}
 	
 	private int insertHelper(AVLNode location, AVLNode node) {
 		if (!location.isRealNode()) return ERROR_CANNOT_INSERT;
 		int countOperations = 0;
-		if (location.getKey() < node.getKey()) {
+		if        (node.getKey() < location.getKey()) {
 			if (!location.getLeft().isRealNode()) {
 				nodeCount++;
 				location.setLeft(node);
 			}
 			else countOperations = insertHelper((AVLNode)location.getLeft(), node);
-		} else if (location.getKey() > node.getKey()) {
+		} else if (node.getKey() > location.getKey()) {
 			if (!location.getRight().isRealNode()) {
 				nodeCount++;
 				location.setRight(node);
@@ -240,8 +296,11 @@ public class AVLTree {
 			countOperations = ERROR_CANNOT_INSERT;
 		}
 		if (countOperations == ERROR_CANNOT_INSERT) return ERROR_CANNOT_INSERT;
+		if (countOperations != ERROR_CANNOT_INSERT) {
+			location.updateHeight();
+		}
 		
-		countOperations += rebalance(location, node);
+		countOperations += balance(location);
 		
 		return countOperations;
 	}
@@ -258,6 +317,7 @@ public class AVLTree {
 	public int insert(int k, String i) {
 		if (root == null) {
 			root = new AVLNode(k, i);
+			nodeCount++;
 			return 0;
 		} else return insertHelper(root, new AVLNode(k, i));
 	}
@@ -321,7 +381,7 @@ public class AVLTree {
 		else
 			location.setHeight(1+location.getRight().getHeight());
 		
-		countOperations += rebalance(location, node);
+		countOperations += balance(location);
 		
 		return countOperations;
 	}
@@ -469,6 +529,11 @@ public class AVLTree {
 		return nodeCount;
 	}
 	
+	public int debugSize(IAVLNode p) {
+		if (!p.isRealNode()) return 0;
+		return 1+debugSize(p.getLeft())+debugSize(p.getRight());
+	}
+	
 	/**
 	* public int getRoot()
 	*
@@ -552,7 +617,7 @@ public class AVLTree {
 			x.setHeight(k+1);
 			assert(c.getHeight()==k+1 || c.getHeight()==k+2);
 			if (c.getHeight()==k+1) {
-				rebalance(c, c);
+				balance(c);
 			}
 		} else {
 			
@@ -609,7 +674,8 @@ public class AVLTree {
 			if (key != -1) {
 				this.left = new AVLNode(-1, null);
 				this.right = new AVLNode(-1, null);
-				this.parent = new AVLNode(-1, null);
+				//this.parent = new AVLNode(-1, null);
+				this.parent = null;
 				this.left.setParent(this);
 				this.right.setParent(this);
 				this.height = 0;
@@ -647,8 +713,9 @@ public class AVLTree {
 			this.left.setParent(this);
 			try {
 				assertAVL();
-			} catch (AssertionError e) {
+			} catch (Exception e) {
 				System.out.println("Cannot setLeft() - exception thrown");
+				System.out.println("Message: " + e.getMessage());
 				this.left = old;
 				return;
 			}
@@ -662,7 +729,7 @@ public class AVLTree {
 			this.right.setParent(this);
 			try {
 				assertAVL();
-			} catch (AssertionError e) {
+			} catch (Exception e) {
 				System.out.println("Cannot setRight() - exception thrown");
 				this.right = old;
 				return;
@@ -685,7 +752,7 @@ public class AVLTree {
 		}
 		
 		public int getBF() {
-			return this.left.getHeight() - this.right.getHeight();
+			return this.right.getHeight() - this.left.getHeight();
 		}
 		
 		private void updateSize() {
@@ -693,21 +760,27 @@ public class AVLTree {
 			this.size = 1 + this.left.getSize() + this.right.getSize();
 		}
 		
-		private void updateHeight() {
+		public void updateHeight() {
 			if (!isRealNode()) return;
-			this.setHeight(1+(this.left.getHeight()>this.right.getHeight()?this.left.getHeight():this.right.getHeight()));
+			this.setHeight(1+Math.max(this.left.getHeight(), this.right.getHeight()));
 		}
 		
-		private void assertAVL() throws AssertionError {
+		private void assertAVL() throws Exception {
 			if (!isRealNode()) return;
 			
 			// balanced
 			int bf = getBF();
-			assert(-1 <= bf && bf <= 1);
+			if (!(-1 <= bf && bf <= 1)) {
+				//throw new Exception("BF is invalid, BF="+String.valueOf(bf));
+			}
 			
 			// bst
-			if (left.isRealNode()) assert(left.getKey() < this.getKey());
-			if (right.isRealNode()) assert(this.getKey() < right.getKey());
+			if (left.isRealNode() && !(left.getKey()<this.getKey())) {
+				throw new Exception("BST error, left");
+			}
+			if (right.isRealNode() && !(right.getKey()>this.getKey())) {
+				throw new Exception("BST error, right");
+			}
 		}
 		
 		public void setIsParentLeft(boolean v) { this.isParentLeft = v; }
@@ -719,6 +792,10 @@ public class AVLTree {
 		public void copyFrom(AVLNode node) {
 			this.key = node.getKey();
 			this.info = node.getValue();
+		}
+		
+		public void select(AVLNode node) {
+			
 		}
 		
 	}
