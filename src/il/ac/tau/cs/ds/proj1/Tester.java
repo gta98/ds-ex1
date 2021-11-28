@@ -135,15 +135,14 @@ public class Tester {
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		//insertSpecificList();
-		/*AVLTree[] trees = insertRandomStress(10000, 9999);
-		for (int i=0; i<trees.length; i++) {
-			AVLTree tree = trees[i];
-			int[] keys = tree.keysToArray();
-			deleteRandomOrder(tree, keys, SEED*2);
-		}*/
-		AVLTree t = new AVLTree();
-		AVLSequence seq = new AVLSequence(SEED, 50000);
-		seq.perform(t);
+		AVLTree[] trees = insertRandomStress(6,6);
+		AVLTree tree = trees[0];
+		int[] keys = tree.keysToArray();
+		deleteRandomOrder(tree, keys, SEED*2);
+		/*AVLTree t = new AVLTree();
+		AVLSequence seq = new AVLSequence(SEED, 6);
+		seq.perform(t);*/
+
 		
 		/*tree.delete(3);
 		System.out.println(String.format("Is AVL: %d", tree.isValidAVL()?1:0));

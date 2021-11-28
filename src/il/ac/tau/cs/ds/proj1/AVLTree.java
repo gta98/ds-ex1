@@ -201,9 +201,9 @@ public class AVLTree {
 			else nodeParent.setRight(B);
 		}
 		
-		((AVLNode)A).updateHeight();
-		((AVLNode)B).updateHeight();
-		//if (nodeParent != null) ((AVLNode)nodeParent).updateHeight();
+		((AVLNode)A).update();
+		((AVLNode)B).update();
+		//if (nodeParent != null) ((AVLNode)nodeParent).update();
 		
 		//return B
 	}
@@ -238,9 +238,9 @@ public class AVLTree {
 			else nodeParent.setRight(A);
 		}
 		
-		((AVLNode)B).updateHeight();
-		((AVLNode)A).updateHeight();
-		//if (nodeParent != null) ((AVLNode)nodeParent).updateHeight();
+		((AVLNode)B).update();
+		((AVLNode)A).update();
+		//if (nodeParent != null) ((AVLNode)nodeParent).update();
 		
 		//return A
 	}
@@ -300,7 +300,7 @@ public class AVLTree {
 		boolean hadToUpdateHeight = false;
 		if (countOperations != ERROR_CANNOT_INSERT) {
 			oldHeight = location.getHeight();
-			location.updateHeight();
+			location.update();
 			if (oldHeight != location.getHeight()) hadToUpdateHeight = true;
 		}
 		
@@ -411,7 +411,7 @@ public class AVLTree {
 		boolean hadToUpdateHeight = false;
 		if (countOperations != ERROR_CANNOT_DELETE) {
 			oldHeight = location.getHeight();
-			location.updateHeight();
+			location.update();
 			if (oldHeight != location.getHeight()) hadToUpdateHeight = true;
 		}
 		
@@ -627,6 +627,7 @@ public class AVLTree {
 	*/	
 	public int join(IAVLNode x, AVLTree t)
 	{
+		int rebalanceOperations = 0;
 		AVLTree T1, T2;
 		if (x.getKey() < root.getKey()) {
 			// case 1: keys(t) < x < keys()
@@ -657,13 +658,27 @@ public class AVLTree {
 			// also, this can't go on for more than 2 steps due to BF
 			c.setLeft(x);
 			x.setRight(b);
-			x.setHeight(k+1);
+			((AVLNode)x).update();
 			assert(c.getHeight()==k+1 || c.getHeight()==k+2);
-			if (c.getHeight()==k+1) {
-				balance(c);
-			}
+			rebalanceOperations += balance((AVLNode)x);
+			rebalanceOperations += balance((AVLNode)c); // just in case
 		} else {
-			
+			int k = T2.getRoot().getHeight();
+			a = (AVLNode) T1.getRoot();
+			b = (AVLNode) T2.getRoot();
+			while (a.getHeight() > k) {
+				if (a.getRight().isRealNode()) a=(AVLNode)a.getRight();
+				else                          a=(AVLNode)a.getLeft();
+			}
+			assert(a.getHeight()==k || a.getHeight()==k-1);
+			c = (AVLNode) a.getParent();
+			x.setLeft(a);
+			c.setRight(x);
+			x.setRight(b);
+			((AVLNode)x).update();
+			assert(c.getHeight()==k+1 || c.getHeight()==k+2);
+			rebalanceOperations += balance((AVLNode)x);
+			rebalanceOperations += balance((AVLNode)c); // just in case
 		}
 		return -1;
 	}
@@ -762,8 +777,7 @@ public class AVLTree {
 				this.left = old;
 				return;
 			}
-			updateSize();
-			updateHeight();
+			update();
 			((AVLNode)node).setIsParentLeft(true); // FIXME pray to god this works
 		}
 		public void setRight(IAVLNode node) {
@@ -777,8 +791,7 @@ public class AVLTree {
 				this.right = old;
 				return;
 			}
-			updateSize();
-			updateHeight();
+			update();
 			((AVLNode)node).setIsParentLeft(false); // FIXME pray to god this works
 		}
 		
@@ -806,6 +819,11 @@ public class AVLTree {
 		public void updateHeight() {
 			if (!isRealNode()) return;
 			this.setHeight(1+Math.max(this.left.getHeight(), this.right.getHeight()));
+		}
+		
+		public void update() {
+			updateSize();
+			updateHeight();
 		}
 		
 		private void assertAVL() throws Exception {
