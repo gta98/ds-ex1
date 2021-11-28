@@ -285,22 +285,36 @@ public class AVLTree {
 				nodeCount++;
 				location.setLeft(node);
 			}
-			else countOperations = insertHelper((AVLNode)location.getLeft(), node);
+			else countOperations += insertHelper((AVLNode)location.getLeft(), node);
 		} else if (node.getKey() > location.getKey()) {
 			if (!location.getRight().isRealNode()) {
 				nodeCount++;
 				location.setRight(node);
 			}
-			else countOperations = insertHelper((AVLNode)location.getRight(), node);
+			else countOperations += insertHelper((AVLNode)location.getRight(), node);
 		} else {
 			countOperations = ERROR_CANNOT_INSERT;
 		}
 		if (countOperations == ERROR_CANNOT_INSERT) return ERROR_CANNOT_INSERT;
+		int oldHeight;
+		boolean hadToUpdateHeight = false;
 		if (countOperations != ERROR_CANNOT_INSERT) {
+			oldHeight = location.getHeight();
 			location.updateHeight();
+			if (oldHeight != location.getHeight()) hadToUpdateHeight = true;
 		}
 		
-		countOperations += balance(location);
+		int balanceOperations = balance(location);
+		if (balanceOperations == 0) {
+			if (hadToUpdateHeight) {
+				countOperations += 1;
+			} else {
+				
+			}
+		} else if (balanceOperations > 0){
+			// A promotion/rotation counts as one re-balance operation, double-rotation is counted as 2.
+			countOperations += balanceOperations;
+		}
 		
 		return countOperations;
 	}
