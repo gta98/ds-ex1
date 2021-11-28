@@ -135,10 +135,32 @@ public class Tester {
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		//insertSpecificList();
-		AVLTree[] trees = insertRandomStress(6,6);
+		AVLTree[] trees = insertRandomStress(8,8);
 		AVLTree tree = trees[0];
 		int[] keys = tree.keysToArray();
-		deleteRandomOrder(tree, keys, SEED*2);
+		//deleteRandomOrder(tree, keys, SEED*2);
+		System.out.println(String.format("We have %d keys", keys.length));
+		System.out.println(String.format("Is AVL: %d", tree.isValidAVL()?1:0));
+		
+		AVLTree t1 = new AVLTree();
+		AVLTree t2 = new AVLTree();
+		insertRandomly(t1, 10, 6, SEED);
+		insertRandomly(t2, 50, 33, SEED);
+		AVLTree.AVLNode x = t1.AVLNodeGenerator(14, "14");
+		t1.join(x, t2);
+		
+		keys = t1.keysToArray();
+		System.out.println(String.format("We have %d keys", keys.length));
+		System.out.println(String.format("Is AVL: %d", tree.isValidAVL()?1:0));
+		
+		
+		AVLTree[] splits = tree.split(6);
+		for (int i=0; i<splits.length; i++) {
+			int[] mKeys = splits[i].keysToArray();
+			System.out.println(String.format("We have %d keys", mKeys.length));
+			System.out.println(String.format("Is AVL: %d", splits[i].isValidAVL()?1:0));
+		}
+		
 		/*AVLTree t = new AVLTree();
 		AVLSequence seq = new AVLSequence(SEED, 6);
 		seq.perform(t);*/

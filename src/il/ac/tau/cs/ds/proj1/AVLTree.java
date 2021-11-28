@@ -615,7 +615,6 @@ public class AVLTree {
 		return trees;
 	}
 	
-	// FIXME not implemented
 	/**
 	* public int join(AVLNode x, AVLTree t)
 	*
@@ -627,6 +626,8 @@ public class AVLTree {
 	*/	
 	public int join(IAVLNode x, AVLTree t)
 	{
+		int complexity = Math.abs(this.root.getHeight() - t.getRoot().getHeight()) + 1;
+		int newCount = this.nodeCount + t.size() + 1;
 		int rebalanceOperations = 0;
 		AVLTree T1, T2;
 		if (x.getKey() < root.getKey()) {
@@ -660,8 +661,8 @@ public class AVLTree {
 			x.setRight(b);
 			((AVLNode)x).update();
 			assert(c.getHeight()==k+1 || c.getHeight()==k+2);
-			rebalanceOperations += balance((AVLNode)x);
-			rebalanceOperations += balance((AVLNode)c); // just in case
+			//rebalanceOperations += balance((AVLNode)x);
+			rebalanceOperations += balance((AVLNode)c);
 		} else {
 			int k = T2.getRoot().getHeight();
 			a = (AVLNode) T1.getRoot();
@@ -677,10 +678,16 @@ public class AVLTree {
 			x.setRight(b);
 			((AVLNode)x).update();
 			assert(c.getHeight()==k+1 || c.getHeight()==k+2);
-			rebalanceOperations += balance((AVLNode)x);
-			rebalanceOperations += balance((AVLNode)c); // just in case
+			//rebalanceOperations += balance((AVLNode)x);
+			rebalanceOperations += balance((AVLNode)c);
 		}
-		return -1;
+		AVLNode newRoot = (AVLNode) x;
+		while (newRoot.getParent() != null) {
+			newRoot = (AVLNode) newRoot.getParent();
+		}
+		root = newRoot;
+		this.nodeCount = newCount;
+		return complexity;
 	}
 
 	/** 
@@ -699,6 +706,10 @@ public class AVLTree {
 		public boolean isRealNode(); // Returns True if this is a non-virtual AVL node.
 		public void setHeight(int height); // Sets the height of the node.
 		public int getHeight(); // Returns the height of the node (-1 for virtual nodes).
+	}
+	
+	public AVLNode AVLNodeGenerator(int key, String value) {
+		return new AVLNode(key, value);
 	}
 	
 	/** 
