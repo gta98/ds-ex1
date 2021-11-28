@@ -309,7 +309,7 @@ public class AVLTree {
 			if (hadToUpdateHeight) {
 				countOperations += 1;
 			} else {
-				
+				// do nothing
 			}
 		} else if (balanceOperations > 0){
 			// A promotion/rotation counts as one re-balance operation, double-rotation is counted as 2.
@@ -336,70 +336,100 @@ public class AVLTree {
 		} else return insertHelper(root, new AVLNode(k, i));
 	}
 	
-	private int deleteHelper(AVLNode location, AVLNode node) {
+	private int deleteHelper(AVLNode location, int k) {
 		if (!location.isRealNode()) return ERROR_CANNOT_DELETE;
 		int countOperations = 0;
-		if (location.getKey() < node.getKey()) {
+		int deleteResult;
+		if        (k < location.getKey()) {
 			if (!location.getLeft().isRealNode()) {
 				return ERROR_CANNOT_DELETE;
 			}
-			else countOperations = deleteHelper((AVLNode)location.getLeft(), node);
-		} else if (location.getKey() > node.getKey()) {
+			else {
+				deleteResult = deleteHelper((AVLNode)location.getLeft(), k);
+				if (deleteResult == ERROR_CANNOT_DELETE) return ERROR_CANNOT_DELETE;
+				countOperations += deleteResult;
+			}
+		} else if (k > location.getKey()) {
 			if (!location.getRight().isRealNode()) {
 				return ERROR_CANNOT_DELETE;
 			}
-			else countOperations = deleteHelper((AVLNode)location.getRight(), node);
+			else {
+				deleteResult = deleteHelper((AVLNode)location.getRight(), k);
+				if (deleteResult == ERROR_CANNOT_DELETE) return ERROR_CANNOT_DELETE;
+				countOperations += deleteResult;
+			}
 		} else {
-			AVLNode deadMan = location;
-			AVLNode deadManParent = (AVLNode) deadMan.getParent();
-			
-			if (!deadMan.getLeft().isRealNode() || !deadMan.getRight().isRealNode()) {
-				// one or zero children
-				AVLNode tmp = null;
-				if      (deadMan.getLeft().isRealNode())  tmp = (AVLNode) deadMan.getLeft();
-				else if (deadMan.getRight().isRealNode()) tmp = (AVLNode) deadMan.getRight();
+			//System.out.println(String.format("k==location.getKey(): %d==%d", k, location.getKey()));
+			// this is our node
+			AVLNode parent = (AVLNode) location.getParent();
+			AVLNode successor = null;
+			if (!location.getLeft().isRealNode() && !location.getRight().isRealNode()) {
+				// leaf
+				location.becomeVirtual();
+				nodeCount--;
+				return 0;
+			} else if (!location.getLeft().isRealNode() || !location.getRight().isRealNode()) {
+				// only one child
 				
-				if (tmp == null) { // no children
-					if (!deadManParent.isRealNode()) {
-						root = null;
-						nodeCount--;
-						assert(nodeCount==0);
-						return countOperations;
-					} else if (deadMan == deadManParent.getLeft()) {
-						deadManParent.setLeft(new AVLNode(deadManParent));
-						nodeCount--;
-					} else if (deadMan == deadManParent.getRight()) {
-						deadManParent.setRight(new AVLNode(deadManParent));
-						nodeCount--;
-					} else {
-						System.out.println("Deletion from corrupt tree");
-						assert(false);
-					}
-				} else { // one child
-					location.copyFrom(tmp);
-					location.setLeft(tmp.getLeft());
-					location.setRight(tmp.getRight());
+				if (location.getLeft().isRealNode()) {
+					// only left child
+					successor = (AVLNode) location.getLeft();
+					/*location.setLeft(null);*/
+				} else if (location.getRight().isRealNode()) {
+					// only right child
+					successor = (AVLNode) location.getRight();
+					/*location.setRight(null);*/
+				} else {
+					assert(false); // this cannot happen
 				}
+				
+				/*if (location == (AVLNode)parent.getLeft()) parent.setLeft(successor);
+				else if (location == (AVLNode)parent.getRight()) parent.setRight(successor);
+				else {
+					System.out.println("Deformed tree, this is bad. Try to look ahead instead maybe");
+					assert(false);
+				}
+				successor.setParent(parent);
+				location.becomeVirtual();*/
+				location.fullCopyFrom(successor); // FIXME - if this works, consider trying out the above
+				nodeCount--;
 			} else {
 				// two children
-				AVLNode inOrderSuccessor = (AVLNode) minNodeBelow(location.getRight());
-				location.copyFrom(inOrderSuccessor);
-				countOperations += deleteHelper((AVLNode)location.getRight(), inOrderSuccessor);
+				
+				// we pick the smallest value in the right subtree
+				successor = (AVLNode) minNodeBelow(location.getRight());
+				location.partialCopyFrom(successor);
+				deleteResult = deleteHelper((AVLNode)location.getRight(), successor.getKey());
+				if (deleteResult == ERROR_CANNOT_DELETE) assert(false); // we're already midway removal
+				countOperations += deleteResult;
+				// we don't call nodeCount--
+				// recursive call must do this for us
 			}
 		}
-			
-		if (root == null) return countOperations;
 		
-		if (location.getLeft().getHeight()>location.getRight().getHeight())
-			location.setHeight(1+location.getLeft().getHeight());
-		else
-			location.setHeight(1+location.getRight().getHeight());
+		int oldHeight;
+		boolean hadToUpdateHeight = false;
+		if (countOperations != ERROR_CANNOT_DELETE) {
+			oldHeight = location.getHeight();
+			location.updateHeight();
+			if (oldHeight != location.getHeight()) hadToUpdateHeight = true;
+		}
 		
-		countOperations += balance(location);
+		int balanceOperations = balance(location);
+		if (balanceOperations == 0) {
+			if (hadToUpdateHeight) {
+				countOperations += 1;
+			} else {
+				
+			}
+		} else if (balanceOperations > 0){
+			// A promotion/rotation counts as one re-balance operation, double-rotation is counted as 2.
+			countOperations += balanceOperations;
+		}
 		
 		return countOperations;
 	}
-
+	
 	/**
 	* public int delete(int k)
 	*
@@ -412,8 +442,7 @@ public class AVLTree {
 	public int delete(int k)
 	{
 		if (root == null) return ERROR_CANNOT_DELETE;
-		AVLNode deadMan = new AVLNode(k, "");
-		return deleteHelper(root, deadMan);
+		return deleteHelper(root, k);
 	}
 	
 	
@@ -803,13 +832,37 @@ public class AVLTree {
 		public int getSize() { return this.size; }
 		//public void setKey(int key) { this.key = key; }
 		
-		public void copyFrom(AVLNode node) {
+		public void partialCopyFrom(AVLNode node) {
 			this.key = node.getKey();
 			this.info = node.getValue();
 		}
 		
+		public void fullCopyFrom(AVLNode node) {
+			this.key = node.getKey();
+			this.info = node.getValue();
+			this.left = (AVLNode) node.getLeft();
+			this.right = (AVLNode) node.getRight();
+			this.left.setParent(this);
+			this.right.setParent(this);
+			this.height = node.getHeight();
+			this.size = node.getSize();
+			this.BF = node.getBF();
+			this.virtual = !node.isRealNode();
+		}
+		
 		public void select(AVLNode node) {
 			
+		}
+		
+		public void becomeVirtual() {
+			assert(!this.left.isRealNode() && !this.right.isRealNode());
+			this.left = null;
+			this.right = null;
+			//this.parent = (AVLNode) parent;
+			this.height = -1;
+			this.size = 0;
+			this.key = -1;
+			this.virtual = true;
 		}
 		
 	}
