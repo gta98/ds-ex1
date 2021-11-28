@@ -18,6 +18,7 @@ public class AVLTree {
 	
 	AVLNode root = null;
 	int nodeCount = 0;
+	boolean isClone = false;
 	
 	public AVLTree() {
 		this.root = null;
@@ -588,18 +589,16 @@ public class AVLTree {
 		return this.root;
 	}
 	
-	// FIXME not implemented (yes, really)
-	/**
-	* public AVLTree[] split(int x)
-	*
-	* splits the tree into 2 trees according to the key x. 
-	* Returns an array [t1, t2] with two AVL trees. keys(t1) < x < keys(t2).
-	* 
-	* precondition: search(x) != null (i.e. you can also assume that the tree is not empty)
-	* postcondition: none
-	*/	
-	public AVLTree[] split(int x)
-	{
+	@Override
+	public AVLTree clone() {
+		AVLTree t = new AVLTree();
+		t.root = this.root.deepClone();
+		t.nodeCount = this.nodeCount;
+		t.isClone = true;
+		return t;
+	}
+	
+	public AVLTree[] splitWithClonedNodes(int x) {
 		AVLNode xNode = searchNode(x);
 		assert(xNode.isRealNode());
 		
@@ -619,11 +618,11 @@ public class AVLTree {
 		AVLNode p = (AVLNode) xNode.getParent();
 		
 		AVLTree left, right;
-		while (p.isRealNode()) {
+		while (p != null && p.isRealNode()) {
 			if (p.getKey() < x) {
 				t1.join(p, ((AVLNode)p.getLeft()).toTree());
 			}
-			else if (x > p.getKey()) {
+			else if (x < p.getKey()) {
 				t2.join(p, ((AVLNode)p.getRight()).toTree());
 			}
 			p = (AVLNode) p.getParent();
@@ -633,6 +632,22 @@ public class AVLTree {
 		trees[0] = t1;
 		trees[1] = t2;
 		return trees;
+	}
+	
+	// FIXME not implemented (yes, really)
+	/**
+	* public AVLTree[] split(int x)
+	*
+	* splits the tree into 2 trees according to the key x. 
+	* Returns an array [t1, t2] with two AVL trees. keys(t1) < x < keys(t2).
+	* 
+	* precondition: search(x) != null (i.e. you can also assume that the tree is not empty)
+	* postcondition: none
+	*/	
+	public AVLTree[] split(int x)
+	{
+		AVLTree mClone = this.clone();
+		return mClone.splitWithClonedNodes(x);
 	}
 	
 	/**
@@ -648,20 +663,24 @@ public class AVLTree {
 	{
 		int complexity;
 		if (this.empty() && t.empty()) {
+			System.out.println("Scenario 1");
 			this.root = (AVLNode) x;
 			this.nodeCount = 1;
 			return 1;
 		} else if (this.empty()) {
+			System.out.println("Scenario 2");
 			complexity = 2+t.getRoot().getHeight();
 			t.insert(x.getKey(), x.getValue());
 			this.root = (AVLNode) t.getRoot();
 			this.nodeCount = t.size();
 			return complexity;
 		} else if (t.empty()) {
+			System.out.println("Scenario 3");
 			complexity = 2+this.getRoot().getHeight();
 			this.insert(x.getKey(), x.getValue());
 			return complexity;
 		}
+		System.out.println("Scenario 4");
 		
 		complexity = Math.abs(this.root.getHeight() - t.getRoot().getHeight()) + 1;
 		int newCount = this.nodeCount + t.size() + 1;
@@ -679,7 +698,7 @@ public class AVLTree {
 		
 		AVLNode a, b, c;
 		
-		if (T1.getRoot().getHeight() <= T2.getRoot().getHeight()) {
+		if (T1.getRoot().getHeight() < T2.getRoot().getHeight()) {
 			int k = T1.getRoot().getHeight();
 			a = (AVLNode) T1.getRoot();
 			b = (AVLNode) T2.getRoot();
@@ -700,7 +719,7 @@ public class AVLTree {
 			assert(c.getHeight()==k+1 || c.getHeight()==k+2);
 			//rebalanceOperations += balance((AVLNode)x);
 			rebalanceOperations += balance((AVLNode)c);
-		} else {
+		} else if (T1.getRoot().getHeight() > T2.getRoot().getHeight()){
 			int k = T2.getRoot().getHeight();
 			a = (AVLNode) T1.getRoot();
 			b = (AVLNode) T2.getRoot();
@@ -717,6 +736,11 @@ public class AVLTree {
 			assert(c.getHeight()==k+1 || c.getHeight()==k+2);
 			//rebalanceOperations += balance((AVLNode)x);
 			rebalanceOperations += balance((AVLNode)c);
+		} else {
+			x.setLeft(T1.getRoot());
+			x.setRight(T2.getRoot());
+			((AVLNode)x).update();
+			// no rebalancing needed?
 		}
 		AVLNode newRoot = (AVLNode) x;
 		while (newRoot.getParent() != null) {
@@ -916,6 +940,23 @@ public class AVLTree {
 			this.virtual = !node.isRealNode();
 		}
 		
+		@Override
+		public AVLNode clone() {
+			return new AVLNode(this.key, this.info);
+		}
+		
+		public AVLNode deepClone() {
+			if (!this.isRealNode()) return new AVLNode(-1, null);
+			AVLNode node = new AVLNode(this.key, this.info);
+			node.setLeft(((AVLNode)this.left).deepClone());
+			node.setRight(((AVLNode)this.right).deepClone());
+			node.setHeight(this.height);
+			node.size = this.size;
+			node.BF = this.BF;
+			node.virtual = this.virtual;
+			return node;
+		}
+		
 		public void select(AVLNode node) {
 			
 		}
@@ -934,6 +975,13 @@ public class AVLTree {
 		public AVLTree toTree() {
 			AVLTree t = new AVLTree();
 			t.root = this;
+			t.nodeCount = this.size;
+			return t;
+		}
+		
+		public AVLTree toTreeClone() {
+			AVLTree t = new AVLTree();
+			t.root = this.deepClone();
 			t.nodeCount = this.size;
 			return t;
 		}
