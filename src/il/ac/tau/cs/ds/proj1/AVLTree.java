@@ -600,18 +600,38 @@ public class AVLTree {
 	*/	
 	public AVLTree[] split(int x)
 	{
-		AVLNode parent = this.searchNode(x);
-		assert(parent != null);
+		AVLNode xNode = searchNode(x);
+		assert(xNode.isRealNode());
 		
-		AVLNode root1 = (AVLNode) parent.getLeft();
-		AVLNode root2 = (AVLNode) parent.getRight();
+		AVLTree t1, t2;
+		t1 = new AVLTree();
+		t2 = new AVLTree();
 		
-		int nodeCount1 = getNodeCountFromPointer(root1);
-		int nodeCount2 = getNodeCountFromPointer(root2);
+		if (xNode.left.isRealNode()) {
+			t1.root = xNode.left;
+			t1.nodeCount = xNode.left.getSize();
+		}
+		if (xNode.right.isRealNode()) {
+			t2.root = xNode.right;
+			t2.nodeCount = xNode.right.getSize();
+		}
+		
+		AVLNode p = (AVLNode) xNode.getParent();
+		
+		AVLTree left, right;
+		while (p.isRealNode()) {
+			if (p.getKey() < x) {
+				t1.join(p, ((AVLNode)p.getLeft()).toTree());
+			}
+			else if (x > p.getKey()) {
+				t2.join(p, ((AVLNode)p.getRight()).toTree());
+			}
+			p = (AVLNode) p.getParent();
+		}
 		
 		AVLTree[] trees = new AVLTree[2];
-		trees[0] = new AVLTree(root1, nodeCount1);
-		trees[1] = new AVLTree(root2, nodeCount2);
+		trees[0] = t1;
+		trees[1] = t2;
 		return trees;
 	}
 	
@@ -626,7 +646,24 @@ public class AVLTree {
 	*/	
 	public int join(IAVLNode x, AVLTree t)
 	{
-		int complexity = Math.abs(this.root.getHeight() - t.getRoot().getHeight()) + 1;
+		int complexity;
+		if (this.empty() && t.empty()) {
+			this.root = (AVLNode) x;
+			this.nodeCount = 1;
+			return 1;
+		} else if (this.empty()) {
+			complexity = 2+t.getRoot().getHeight();
+			t.insert(x.getKey(), x.getValue());
+			this.root = (AVLNode) t.getRoot();
+			this.nodeCount = t.size();
+			return complexity;
+		} else if (t.empty()) {
+			complexity = 2+this.getRoot().getHeight();
+			this.insert(x.getKey(), x.getValue());
+			return complexity;
+		}
+		
+		complexity = Math.abs(this.root.getHeight() - t.getRoot().getHeight()) + 1;
 		int newCount = this.nodeCount + t.size() + 1;
 		int rebalanceOperations = 0;
 		AVLTree T1, T2;
@@ -892,6 +929,13 @@ public class AVLTree {
 			this.size = 0;
 			this.key = -1;
 			this.virtual = true;
+		}
+		
+		public AVLTree toTree() {
+			AVLTree t = new AVLTree();
+			t.root = this;
+			t.nodeCount = this.size;
+			return t;
 		}
 		
 	}
