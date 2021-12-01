@@ -22,8 +22,23 @@ public class Tester {
 		Question1 q1 = new Question1(); // maybe add randomized parameters here
 		Question2 q2 = new Question2();
 		
-		q1.test();
+		//q1.test();
 		q2.test();
+		
+		AVLTree t = new AVLTree();
+		int max_i = 1000 * ((int)Math.pow(2, 10));
+		//insertRandomly(t, max_i, max_i, SEED);
+		for (int i=max_i; i>=1; i--) t.insert(i, "lala"+String.valueOf(i));
+		if (!t.isValidAVL()) {
+			System.out.println("Thats a shame");
+		}
+		System.out.println(String.format("Inserted %d", t.keysToArray().length));
+		int max_in_left =  ((AVLTree.AVLNode)t.getRoot().getLeft()).getMaxChild().getKey();
+		System.out.println(String.format("Max in left %d", max_in_left));
+		
+		AVLTree[] splitted = t.split(max_in_left);
+		
+		System.out.println("STOP! hammer time");
 		
 		/// INSERT TESTING HERE ///
 	}
@@ -252,6 +267,7 @@ public class Tester {
 			}
 			inserted++;
 		}
+		System.out.println("Total inserted" + String.valueOf(inserted));
 	}
 	
 	@SuppressWarnings("unused")

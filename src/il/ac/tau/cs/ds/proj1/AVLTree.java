@@ -13,23 +13,43 @@ package il.ac.tau.cs.ds.proj1;
 
 public class AVLTree {
 	
+	private static final boolean FLAG_DEBUG = false;
+	
 	private static final int	ERROR_CANNOT_INSERT = -1,
 								ERROR_CANNOT_DELETE = -1;
 	
 	AVLNode root = null;
 	int nodeCount = 0;
-	boolean isClone = false;
 	
+	/**
+	 * public AVLTree()
+	 * 
+	 * @pre: none
+	 * @post: empty AVL tree
+	 */
 	public AVLTree() {
 		this.root = null;
 		this.nodeCount = 0;
 	}
 	
+	/**
+	 * public AVLTree(AVLNode root, int nodeCount)
+	 * 
+	 * @pre: root=valid AVL subtree root
+	 * @pre: nodeCount which matches root children count + 1
+	 * @post: new AVLTree with specified root as root
+	 */
 	public AVLTree(AVLNode root, int nodeCount) {
 		this.root = root;
 		this.nodeCount = nodeCount;
 	}
 	
+	/**
+	 * public boolean isValidHierarchy(IAVLNode p)
+	 * 
+	 * @pre: node p
+	 * @post: whether or not all recursive children of p are linked to their real parents
+	 */
 	public boolean isValidHierarchy(IAVLNode p) { 
 		if (p==null || (!p.isRealNode() && p.getLeft()==null && p.getRight()==null && p.getHeight()==-1)) {
 			return true;
@@ -43,6 +63,12 @@ public class AVLTree {
 		return isValidHierarchy(p.getLeft()) && isValidHierarchy(p.getRight());
 	}
 	
+	/**
+	 * public boolean isValidBST(IAVLNode p)
+	 * 
+	 * @pre: node p
+	 * @post: forall x in recursive children of p, x.left.key <= x.key <= x.right.key
+	 */
 	public boolean isValidBST(IAVLNode p) {
 		if (p==null || (!p.isRealNode() && p.getLeft()==null && p.getRight()==null)) {
 			return true;
@@ -56,6 +82,12 @@ public class AVLTree {
 		return isValidBST(p.getLeft()) && isValidBST(p.getRight());
 	}
 	
+	/**
+	 * public boolean isValidRank(IAVLNode p)
+	 * 
+	 * @pre: node p
+	 * @post: balance factor is either -1, 0 or 1
+	 */
 	public boolean isValidRank(IAVLNode p) {
 		if (p==null || (!p.isRealNode() && p.getLeft()==null && p.getRight()==null && p.getHeight()==-1)) {
 			return true;
@@ -73,6 +105,12 @@ public class AVLTree {
 		return false;
 	}
 	
+	/**
+	 * public boolean isValidAVL(IAVLNode p)
+	 * 
+	 * @pre: node p
+	 * @post: subtree of node p is a valid AVL tree
+	 */
 	public boolean isValidAVL(IAVLNode p) {
 		if (!isValidHierarchy(p)) {
 			return false;
@@ -83,16 +121,30 @@ public class AVLTree {
 		if (!isValidRank(p)) {
 			return false;
 		}
-		if (debugSize(p)!=size()) {
-			return false;
+		if (FLAG_DEBUG) {
+			if (debugSize(p)!=size()) {
+				return false;
+			}
 		}
 		return true;
 	}
 	
+	/**
+	 * public boolean isValidAVL()
+	 * 
+	 * @pre: none
+	 * @post: whether or not this is a valid AVL tree
+	 */
 	public boolean isValidAVL() {
 		return isValidAVL(root);
 	}
 	
+	/**
+	 * public static boolean isValidAVL(IAVLNode p)
+	 * 
+	 * @pre: node p
+	 * @post: prints subtree of p inorder
+	 */
 	public static void printInOrder(IAVLNode p) {
 		if (p==null || (!p.isRealNode() && p.getLeft()==null && p.getRight()==null && p.getHeight()==-1)) {
 			return;
@@ -102,6 +154,12 @@ public class AVLTree {
 		printInOrder(p.getRight());
 	}
 	
+	/**
+	 * public static boolean isValidAVL()
+	 * 
+	 * @pre: none
+	 * @post: prints this tree inorder
+	 */
 	public void printInOrder() {
 		printInOrder(root);
 	}
@@ -113,10 +171,15 @@ public class AVLTree {
 	*
 	*/
 	public boolean empty() {
-		assert((root==null&&nodeCount==0) || (root!=null&&nodeCount>0));
-		return root == null || nodeCount==0;
+		return root==null || !root.isRealNode();
 	}
 	
+	/**
+	 * public AVLNode searchNode(int k)
+	 * 
+	 * @pre: key k of requested node
+	 * @post: requested node if exists, else null
+	 */
 	public AVLNode searchNode(int k)
 	{
 		if (empty()) return null;
@@ -570,7 +633,8 @@ public class AVLTree {
 	*/
 	public int size()
 	{
-		return nodeCount;
+		if (this.empty()) return 0;
+		return this.root.getSize();
 	}
 	
 	public int debugSize(IAVLNode p) {
@@ -594,36 +658,50 @@ public class AVLTree {
 		AVLTree t = new AVLTree();
 		t.root = this.root.deepClone();
 		t.nodeCount = this.nodeCount;
-		t.isClone = true;
 		return t;
 	}
 	
 	public AVLTree[] splitWithClonedNodes(int x) {
 		AVLNode xNode = searchNode(x);
-		assert(xNode.isRealNode());
+		if (!xNode.isRealNode()) {
+			this.insert(x, null);
+			xNode = searchNode(x);
+			assert(xNode.isRealNode());
+		}
 		
 		AVLTree t1, t2;
 		t1 = new AVLTree();
 		t2 = new AVLTree();
 		
-		if (xNode.left.isRealNode()) {
+		/*if (xNode.left.isRealNode()) {
 			t1.root = xNode.left;
-			t1.nodeCount = xNode.left.getSize();
 		}
 		if (xNode.right.isRealNode()) {
 			t2.root = xNode.right;
-			t2.nodeCount = xNode.right.getSize();
-		}
+		}*/
 		
-		AVLNode p = (AVLNode) xNode.getParent();
+		AVLNode p = (AVLNode) xNode;//.getParent();
 		
-		AVLTree left, right;
 		while (p != null && p.isRealNode()) {
 			if (p.getKey() < x) {
-				t1.join(p, ((AVLNode)p.getLeft()).toTree());
+				t1.join(p.clone(), ((AVLNode)p.getLeft()).toTree());
 			}
 			else if (x < p.getKey()) {
-				t2.join(p, ((AVLNode)p.getRight()).toTree());
+				t2.join(p.clone(), ((AVLNode)p.getRight()).toTree());
+			} else {
+				assert(p == xNode);
+				if (p.left.isRealNode())  t1.root = p.left;
+				if (p.right.isRealNode()) t2.root = p.right;
+			}
+			
+			if (p.parent != null) {
+				assert(p == p.parent.left || p == p.parent.right);
+				if (p == p.parent.left) {
+					p.parent.setLeft(new AVLNode(-1, null));
+				}
+				else {
+					p.parent.setRight(new AVLNode(-1, null));
+				}
 			}
 			p = (AVLNode) p.getParent();
 		}
@@ -651,7 +729,7 @@ public class AVLTree {
 	}
 	
 	/**
-	* public int join(AVLNode x, AVLTree t)
+	* public int join(IAVLNode x, AVLTree t)
 	*
 	* joins t and x with the tree. 	
 	* Returns the complexity of the operation (|tree.rank - t.rank| + 1).
@@ -733,6 +811,9 @@ public class AVLTree {
 			c.setRight(x);
 			x.setRight(b);
 			((AVLNode)x).update();
+			if (!(c.getHeight()==k+1 || c.getHeight()==k+2)) {
+				System.out.println("About to throw assertion");
+			}
 			assert(c.getHeight()==k+1 || c.getHeight()==k+2);
 			//rebalanceOperations += balance((AVLNode)x);
 			rebalanceOperations += balance((AVLNode)c);
@@ -792,6 +873,7 @@ public class AVLTree {
 		int BF;
 		int size;
 		boolean isParentLeft;
+		AVLNode minChild = null, maxChild = null;
 		
 		
 		public AVLNode(int key, String value) {
@@ -808,6 +890,8 @@ public class AVLTree {
 				this.parent = null;
 				this.left.setParent(this);
 				this.right.setParent(this);
+				this.minChild = this;
+				this.maxChild = this;
 				this.height = 0;
 				this.size = 1;
 				this.virtual = false;
@@ -820,15 +904,6 @@ public class AVLTree {
 				this.virtual = true;
 			}
 		}
-		
-		public AVLNode(IAVLNode parent) {
-			this.left = null;
-			this.right = null;
-			this.parent = (AVLNode) parent;
-			this.height = -1;
-			this.size = 0;
-			this.virtual = true;
-		}
 
 		public int getKey() { return this.key; }
 		public String getValue() { return this.info; }
@@ -836,6 +911,9 @@ public class AVLTree {
 		public IAVLNode getLeft() { return this.left; }
 		public IAVLNode getRight() { return this.right; }
 		public int getHeight() { return this.height; }
+		
+		public AVLNode getMaxChild() { return this.maxChild; }
+		public AVLNode getMinChild() { return this.minChild; }
 		
 		public void setLeft(IAVLNode node) {
 			AVLNode old = this.left;
@@ -888,14 +966,21 @@ public class AVLTree {
 			this.size = 1 + this.left.getSize() + this.right.getSize();
 		}
 		
-		public void updateHeight() {
+		private void updateHeight() {
 			if (!isRealNode()) return;
 			this.setHeight(1+Math.max(this.left.getHeight(), this.right.getHeight()));
+		}
+		
+		private void updateMinMax() {
+			if (!isRealNode()) return;
+			this.minChild = this.left.isRealNode()?  this.left.minChild  :this;
+			this.maxChild = this.right.isRealNode()? this.right.maxChild :this;
 		}
 		
 		public void update() {
 			updateSize();
 			updateHeight();
+			updateMinMax();
 		}
 		
 		private void assertAVL() throws Exception {
@@ -989,4 +1074,3 @@ public class AVLTree {
 	}
 
 }
-	
