@@ -1,26 +1,16 @@
 package il.ac.tau.cs.ds.proj1;
 
 public class Question1 {
+	AVLTree[] treeDecreasing, treeRandom;
+	
 	public Question1() {
 		// empty constructor
+		treeDecreasing = new AVLTree[5+1];
+		treeRandom = new AVLTree[5+1];
 	}
 	
 	public void test() {
 		System.out.println("Question1.test() - START");
-		
-		AVLTree t = new AVLTree();
-		for (int i=1; i<=10000000; i++) {
-			t.insert(i, "lala"+String.valueOf(i));
-		}
-		
-		int[] keys = t.keysToArray();
-		System.out.println(String.format("Key length: %d", keys.length));
-		
-		System.out.println(String.format("Value: %s", t.search(38457)));
-		
-		for (int i=1; i<=keys.length; i++) {
-			t.delete(i);
-		}
 		
 		System.out.println("Question1.test() - END");
 	}

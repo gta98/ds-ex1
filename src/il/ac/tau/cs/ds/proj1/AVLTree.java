@@ -541,16 +541,6 @@ public class AVLTree {
 	}
 	
 	/**
-	 * private static int getNodeCountFromPointer(IAVLNode p)
-	 * 
-	 * Given generic IAVLNode, returns subtree size in O(n)
-	 */
-	private static int getNodeCountFromPointer(IAVLNode p) {
-		if (p==null || !p.isRealNode()) return 0;
-		return 1 + getNodeCountFromPointer(p.getLeft()) + getNodeCountFromPointer(p.getRight());
-	}
-	
-	/**
 	* public AVLNode[] treeToArray()
 	*
 	* Returns a list of all the nodes in the tree, sorted by key,

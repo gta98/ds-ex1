@@ -129,10 +129,29 @@ public class Tester {
 	
 	public static void test() {
 		System.out.println("test() - START");
+		randomActions3();
 		randomActions2();
 		randomActions();
 		insertRandomStress(1000,990);
 		System.out.println("test() - END");
+	}
+	
+	public static void randomActions3() {
+		System.out.println("randomActions3() - START");
+		AVLTree t = new AVLTree();
+		for (int i=1; i<=10000000; i++) {
+			t.insert(i, "lala"+String.valueOf(i));
+		}
+		
+		int[] keys = t.keysToArray();
+		System.out.println(String.format("Key length: %d", keys.length));
+		
+		System.out.println(String.format("Value: %s", t.search(38457)));
+		
+		for (int i=1; i<=keys.length; i++) {
+			t.delete(i);
+		}
+		System.out.println("randomActions3() - END");
 	}
 	
 	public static void randomActions2() {
@@ -150,6 +169,8 @@ public class Tester {
 		System.out.println(String.format("Max in left %d", max_in_left));
 		
 		AVLTree[] splitted = t.split(max_in_left);
+		assert(splitted[0].isValidAVL());
+		assert(splitted[1].isValidAVL());
 		
 		System.out.println("STOP! hammer time");
 		System.out.println("randomActions2() - END");
