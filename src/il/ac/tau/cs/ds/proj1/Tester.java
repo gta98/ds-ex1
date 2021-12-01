@@ -171,6 +171,7 @@ public class Tester {
 			System.out.println(String.format("IN SPLIT #%d we have %d keys", i+1, mKeys.length));
 			System.out.println(String.format("Is AVL: %d", splits[i].isValidAVL()?1:0));
 		}
+		assert(splits[0].size()+splits[1].size()+1 == tree.size());
 		
 		AVLTree t1 = new AVLTree();
 		AVLTree t2 = new AVLTree();
@@ -261,6 +262,8 @@ public class Tester {
 			}
 			trees[i-limitBottom] = tree;
 		}
+		
+		assert(failures.size()==0);
 		System.out.println(String.format("insertRandomStress() - Completed with %d failures (out of %d checked)", failures.size(), checked));
 		System.out.println(String.format("insertRandomStress(%d,%d) - END",limitTop,limitBottom));
 		return trees;

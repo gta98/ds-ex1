@@ -100,8 +100,8 @@ public class AVLTree {
 				(diffL == 2 && diffR == 1)) {
 			return isValidRank(p.getLeft()) && isValidRank(p.getRight());
 		}
-		System.out.println("Root is " + root.getValue());
-		System.out.println("Ranks invalid - put breakpoint here");
+		logd("Root is " + root.getValue());
+		logd("Ranks invalid - put breakpoint here");
 		return false;
 	}
 	
@@ -150,7 +150,7 @@ public class AVLTree {
 			return;
 		}
 		printInOrder(p.getLeft());
-		System.out.println(p.getValue());
+		logd(p.getValue());
 		printInOrder(p.getRight());
 	}
 	
@@ -210,31 +210,31 @@ public class AVLTree {
 	}
 	
 	private int leftLeftCase(AVLNode node) {
-		//System.out.println("leftLeftCase() - START");
+		//logd("leftLeftCase() - START");
 		rotateRightAbout(node);
 		return 1;
 	}
 
 	private int leftRightCase(AVLNode node) {
-		//System.out.println("leftRightCase() - START");
+		//logd("leftRightCase() - START");
 		rotateLeftAbout(node.getLeft());
 		return 1 + leftLeftCase(node);
 	}
 
 	private int rightRightCase(AVLNode node) {
-		//System.out.println("rightRightCase() - START");
+		//logd("rightRightCase() - START");
 		rotateLeftAbout(node);
 		return 1;
 	}
 
 	private int rightLeftCase(AVLNode node) {
-		//System.out.println("rightLeftCase() - START");
+		//logd("rightLeftCase() - START");
 		rotateRightAbout(node.getRight());
 		return 1 + rightRightCase(node);
 	}
 	
 	public void rotateRightAbout(IAVLNode node) {
-		assert(node.isRealNode());
+		assert_debug(node.isRealNode());
 		@SuppressWarnings("unused")
 		IAVLNode A, B, C, D, E;
 		IAVLNode nodeParent = node.getParent();
@@ -253,14 +253,14 @@ public class AVLTree {
 		
 		B.setParent(nodeParent);
 
-		assert(nodeParent==null || nodeParent.isRealNode());
+		assert_debug(nodeParent==null || nodeParent.isRealNode());
 		if (nodeParent == null) {
 			// A was root
 			root = (AVLNode) B;
-			//System.out.println("Set root");
+			//logd("Set root");
 		} else if (nodeParent.isRealNode()) {
-			//System.out.println("lala");
-			assert(A == nodeParent.getLeft() || A == nodeParent.getRight());
+			//logd("lala");
+			assert_debug(A == nodeParent.getLeft() || A == nodeParent.getRight());
 			if (A == nodeParent.getLeft()) nodeParent.setLeft(B);
 			else nodeParent.setRight(B);
 		}
@@ -273,7 +273,7 @@ public class AVLTree {
 	}
 	
 	public void rotateLeftAbout(IAVLNode node) {
-		assert(node.isRealNode());
+		assert_debug(node.isRealNode());
 		@SuppressWarnings("unused")
 		IAVLNode A, B, C, D, E;
 		IAVLNode nodeParent = node.getParent();
@@ -292,12 +292,12 @@ public class AVLTree {
 		
 		A.setParent(nodeParent);
 		
-		assert(nodeParent==null || nodeParent.isRealNode());
+		assert_debug(nodeParent==null || nodeParent.isRealNode());
 		if (nodeParent == null) {
 			// B was root
 			root = (AVLNode) A;
 		} else if (nodeParent.isRealNode()) {
-			assert(B == nodeParent.getLeft() || B == nodeParent.getRight());
+			assert_debug(B == nodeParent.getLeft() || B == nodeParent.getRight());
 			if (B == nodeParent.getLeft()) nodeParent.setLeft(A);
 			else nodeParent.setRight(A);
 		}
@@ -311,10 +311,10 @@ public class AVLTree {
 	
 	private int balance(AVLNode node) {
 		int bf = node.getBF();
-		//System.out.println("BF of " + node.getValue() + " is " + String.valueOf(bf));
+		//logd("BF of " + node.getValue() + " is " + String.valueOf(bf));
 		AVLNode left = (AVLNode) node.getLeft();
 		AVLNode right = (AVLNode) node.getRight();
-		assert(-2 <= node.getBF() && node.getBF() <= 2);
+		assert_debug(-2 <= node.getBF() && node.getBF() <= 2);
 
 		int countRotations = 0;
 
@@ -335,7 +335,7 @@ public class AVLTree {
 		}
 
 		if (countRotations > 0) {
-			//System.out.println("Performed " + String.valueOf(countRotations) + " rotations for " + node.getValue());
+			//logd("Performed " + String.valueOf(countRotations) + " rotations for " + node.getValue());
 		}
 
 		return countRotations;
@@ -423,7 +423,7 @@ public class AVLTree {
 				countOperations += deleteResult;
 			}
 		} else {
-			//System.out.println(String.format("k==location.getKey(): %d==%d", k, location.getKey()));
+			//logd(String.format("k==location.getKey(): %d==%d", k, location.getKey()));
 			// this is our node
 			AVLNode parent = (AVLNode) location.getParent();
 			AVLNode successor = null;
@@ -444,14 +444,14 @@ public class AVLTree {
 					successor = (AVLNode) location.getRight();
 					/*location.setRight(null);*/
 				} else {
-					assert(false); // this cannot happen
+					assert_debug(false); // this cannot happen
 				}
 				
 				/*if (location == (AVLNode)parent.getLeft()) parent.setLeft(successor);
 				else if (location == (AVLNode)parent.getRight()) parent.setRight(successor);
 				else {
-					System.out.println("Deformed tree, this is bad. Try to look ahead instead maybe");
-					assert(false);
+					logd("Deformed tree, this is bad. Try to look ahead instead maybe");
+					assert_debug(false);
 				}
 				successor.setParent(parent);
 				location.becomeVirtual();*/
@@ -464,7 +464,7 @@ public class AVLTree {
 				successor = (AVLNode) minNodeBelow(location.getRight());
 				location.partialCopyFrom(successor);
 				deleteResult = deleteHelper((AVLNode)location.getRight(), successor.getKey());
-				if (deleteResult == ERROR_CANNOT_DELETE) assert(false); // we're already midway removal
+				if (deleteResult == ERROR_CANNOT_DELETE) assert_debug(false); // we're already midway removal
 				countOperations += deleteResult;
 				// we don't call nodeCount--
 				// recursive call must do this for us
@@ -512,7 +512,7 @@ public class AVLTree {
 	
 	private static IAVLNode minNodeBelow(IAVLNode p) {
 		if (p.getLeft()==null || !p.getLeft().isRealNode()) return p;
-		return minNodeBelow(p.getLeft());
+		return ((AVLNode)p.getLeft()).getMinChild();
 		
 	}
 
@@ -525,11 +525,7 @@ public class AVLTree {
 	public String min()
 	{
 		if (empty()) return null;
-		IAVLNode p = root;
-		while (p.getLeft() != null) {
-			p = p.getLeft();
-		}
-		return p.getValue();
+		return this.root.getMinChild().getValue();
 	}
 
 	/**
@@ -541,11 +537,7 @@ public class AVLTree {
 	public String max()
 	{
 		if (empty()) return null;
-		IAVLNode p = root;
-		while (p.getRight() != null) {
-			p = p.getRight();
-		}
-		return p.getValue();
+		return this.root.getMaxChild().getValue();
 	}
 	
 	/**
@@ -666,7 +658,7 @@ public class AVLTree {
 		if (!xNode.isRealNode()) {
 			this.insert(x, null);
 			xNode = searchNode(x);
-			assert(xNode.isRealNode());
+			assert_debug(xNode.isRealNode());
 		}
 		
 		AVLTree t1, t2;
@@ -689,13 +681,13 @@ public class AVLTree {
 			else if (x < p.getKey()) {
 				t2.join(p.clone(), ((AVLNode)p.getRight()).toTree());
 			} else {
-				assert(p == xNode);
+				assert_debug(p == xNode);
 				if (p.left.isRealNode())  t1.root = p.left;
 				if (p.right.isRealNode()) t2.root = p.right;
 			}
 			
 			if (p.parent != null) {
-				assert(p == p.parent.left || p == p.parent.right);
+				assert_debug(p == p.parent.left || p == p.parent.right);
 				if (p == p.parent.left) {
 					p.parent.setLeft(new AVLNode(-1, null));
 				}
@@ -741,24 +733,24 @@ public class AVLTree {
 	{
 		int complexity;
 		if (this.empty() && t.empty()) {
-			//System.out.println("Scenario 1");
+			//logd("Scenario 1");
 			this.root = (AVLNode) x;
 			this.nodeCount = 1;
 			return 1;
 		} else if (this.empty()) {
-			//System.out.println("Scenario 2");
+			//logd("Scenario 2");
 			complexity = 2+t.getRoot().getHeight();
 			t.insert(x.getKey(), x.getValue());
 			this.root = (AVLNode) t.getRoot();
 			this.nodeCount = t.size();
 			return complexity;
 		} else if (t.empty()) {
-			//System.out.println("Scenario 3");
+			//logd("Scenario 3");
 			complexity = 2+this.getRoot().getHeight();
 			this.insert(x.getKey(), x.getValue());
 			return complexity;
 		}
-		//System.out.println("Scenario 4");
+		//logd("Scenario 4");
 		
 		complexity = Math.abs(this.root.getHeight() - t.getRoot().getHeight()) + 1;
 		int newCount = this.size() + t.size() + 1;
@@ -784,7 +776,7 @@ public class AVLTree {
 				if (b.getLeft().isRealNode()) b=(AVLNode)b.getLeft();
 				else                          b=(AVLNode)b.getRight();
 			}
-			assert(b.getHeight()==k || b.getHeight()==k-1);
+			assert_debug(b.getHeight()==k || b.getHeight()==k-1);
 			c = (AVLNode) b.getParent();
 			x.setLeft(a);
 			// b doesnt have to be the left child of c
@@ -794,7 +786,7 @@ public class AVLTree {
 			c.setLeft(x);
 			x.setRight(b);
 			((AVLNode)x).update();
-			assert(c.getHeight()==k+1 || c.getHeight()==k+2);
+			assert_debug(c.getHeight()==k+1 || c.getHeight()==k+2);
 			//rebalanceOperations += balance((AVLNode)x);
 			rebalanceOperations += balance((AVLNode)c);
 		} else if (T1.getRoot().getHeight() > T2.getRoot().getHeight()){
@@ -805,16 +797,16 @@ public class AVLTree {
 				if (a.getRight().isRealNode()) a=(AVLNode)a.getRight();
 				else                          a=(AVLNode)a.getLeft();
 			}
-			assert(a.getHeight()==k || a.getHeight()==k-1);
+			assert_debug(a.getHeight()==k || a.getHeight()==k-1);
 			c = (AVLNode) a.getParent();
 			x.setLeft(a);
 			c.setRight(x);
 			x.setRight(b);
 			((AVLNode)x).update();
 			if (!(c.getHeight()==k+1 || c.getHeight()==k+2)) {
-				System.out.println("About to throw assertion");
+				logd("About to throw assertion");
 			}
-			assert(c.getHeight()==k+1 || c.getHeight()==k+2);
+			assert_debug(c.getHeight()==k+1 || c.getHeight()==k+2);
 			//rebalanceOperations += balance((AVLNode)x);
 			rebalanceOperations += balance((AVLNode)c);
 		} else {
@@ -922,8 +914,8 @@ public class AVLTree {
 			try {
 				assertAVL();
 			} catch (Exception e) {
-				System.out.println("Cannot setLeft() - exception thrown");
-				System.out.println("Message: " + e.getMessage());
+				logd("Cannot setLeft() - exception thrown");
+				logd("Message: " + e.getMessage());
 				this.left = old;
 				return;
 			}
@@ -937,7 +929,7 @@ public class AVLTree {
 			try {
 				assertAVL();
 			} catch (Exception e) {
-				System.out.println("Cannot setRight() - exception thrown");
+				logd("Cannot setRight() - exception thrown");
 				this.right = old;
 				return;
 			}
@@ -949,7 +941,7 @@ public class AVLTree {
 			this.parent = (AVLNode) node;
 		}
 		public void setHeight(int height) {
-			assert(isRealNode());
+			assert_debug(isRealNode());
 			this.height = height;
 		}
 		
@@ -1047,7 +1039,7 @@ public class AVLTree {
 		}
 		
 		public void becomeVirtual() {
-			assert(!this.left.isRealNode() && !this.right.isRealNode());
+			assert_debug(!this.left.isRealNode() && !this.right.isRealNode());
 			this.left = null;
 			this.right = null;
 			//this.parent = (AVLNode) parent;
@@ -1071,6 +1063,14 @@ public class AVLTree {
 			return t;
 		}
 		
+	}
+	
+	public static void assertd(boolean condition) {
+		if (FLAG_DEBUG) assert(condition);
+	}
+	
+	public static void logd(String s) {
+		if (FLAG_DEBUG) System.out.println(s);
 	}
 
 }
