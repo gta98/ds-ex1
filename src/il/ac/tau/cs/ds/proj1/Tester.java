@@ -22,24 +22,11 @@ public class Tester {
 		Question1 q1 = new Question1(); // maybe add randomized parameters here
 		Question2 q2 = new Question2();
 		
-		//q1.test();
+		q1.test();
 		q2.test();
 		
-		AVLTree t = new AVLTree();
-		int max_i = 1000 * ((int)Math.pow(2, 10));
-		//insertRandomly(t, max_i, max_i, SEED);
-		for (int i=max_i; i>=1; i--) t.insert(i, "lala"+String.valueOf(i));
-		if (!t.isValidAVL()) {
-			System.out.println("Thats a shame");
-		}
-		System.out.println(String.format("Inserted %d", t.keysToArray().length));
-		int max_in_left =  ((AVLTree.AVLNode)t.getRoot().getLeft()).getMaxChild().getKey();
-		System.out.println(String.format("Max in left %d", max_in_left));
-		
-		AVLTree[] splitted = t.split(max_in_left);
-		
-		System.out.println("STOP! hammer time");
-		
+		test();
+
 		/// INSERT TESTING HERE ///
 	}
 
@@ -140,7 +127,36 @@ public class Tester {
 		}
 	}
 	
+	public static void test() {
+		System.out.println("test() - START");
+		randomActions2();
+		randomActions();
+		insertRandomStress(1000,990);
+		System.out.println("test() - END");
+	}
+	
+	public static void randomActions2() {
+		System.out.println("randomActions2() - START");
+		AVLTree t = new AVLTree();
+		int max_i = 1000 * ((int)Math.pow(2, 10));
+		//insertRandomly(t, max_i, max_i, SEED);
+		for (int i=max_i; i>=1; i--) t.insert(i, "lala"+String.valueOf(i));
+		if (!t.isValidAVL()) {
+			System.out.println("Thats a shame");
+			assert(false);
+		}
+		System.out.println(String.format("Inserted %d", t.keysToArray().length));
+		int max_in_left =  ((AVLTree.AVLNode)t.getRoot().getLeft()).getMaxChild().getKey();
+		System.out.println(String.format("Max in left %d", max_in_left));
+		
+		AVLTree[] splitted = t.split(max_in_left);
+		
+		System.out.println("STOP! hammer time");
+		System.out.println("randomActions2() - END");
+	}
+	
 	public static void randomActions() {
+		System.out.println("randomActions() - START");
 		//insertSpecificList();
 		AVLTree[] trees = insertRandomStress(17,17);
 		AVLTree tree = trees[0];
@@ -183,6 +199,7 @@ public class Tester {
 		tree.printInOrder();
 		System.out.println(String.format("Is AVL: %d", (tree.isValidAVL()?1:0)));*/
 		//OOPTest();
+		System.out.println("randomActions() - END");
 	}
 	
 	
@@ -219,6 +236,7 @@ public class Tester {
 	}
 	
 	public static AVLTree[] insertRandomStress(int limitTop, int limitBottom) {
+		System.out.println(String.format("insertRandomStress(%d,%d) - START",limitTop,limitBottom));
 		int cyclePrintMax = (limitTop-limitBottom)/20;
 		int cyclePrintIdx = 0;
 		AVLTree[] trees = new AVLTree[limitTop-limitBottom+1];
@@ -244,6 +262,7 @@ public class Tester {
 			trees[i-limitBottom] = tree;
 		}
 		System.out.println(String.format("insertRandomStress() - Completed with %d failures (out of %d checked)", failures.size(), checked));
+		System.out.println(String.format("insertRandomStress(%d,%d) - END",limitTop,limitBottom));
 		return trees;
 	}
 	
@@ -267,7 +286,7 @@ public class Tester {
 			}
 			inserted++;
 		}
-		System.out.println("Total inserted" + String.valueOf(inserted));
+		System.out.println("Total inserted " + String.valueOf(inserted));
 	}
 	
 	@SuppressWarnings("unused")

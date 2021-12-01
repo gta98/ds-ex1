@@ -569,8 +569,8 @@ public class AVLTree {
 	// by updating this list on the go, while inserting and deleting
 	// however without a stack, we might hurt worst case complexity of insert/delete
 	private AVLNode[] treeToArray() {
-		AVLNode[] arr = new AVLNode[nodeCount];
-		AVLNode[] stack_pending = new AVLNode[nodeCount];
+		AVLNode[] arr = new AVLNode[this.size()];
+		AVLNode[] stack_pending = new AVLNode[this.size()];
 		AVLNode p = root;
 		int stack_pending_size = 0;
 		int arr_idx = 0;
@@ -761,7 +761,7 @@ public class AVLTree {
 		//System.out.println("Scenario 4");
 		
 		complexity = Math.abs(this.root.getHeight() - t.getRoot().getHeight()) + 1;
-		int newCount = this.nodeCount + t.size() + 1;
+		int newCount = this.size() + t.size() + 1;
 		int rebalanceOperations = 0;
 		AVLTree T1, T2;
 		if (x.getKey() < root.getKey()) {
