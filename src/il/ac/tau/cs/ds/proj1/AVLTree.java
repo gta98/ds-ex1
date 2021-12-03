@@ -13,13 +13,17 @@ package il.ac.tau.cs.ds.proj1;
 
 public class AVLTree {
 	
-	private static final boolean FLAG_DEBUG = false;
+	private static final boolean FLAG_DEBUG = true;
 	
 	private static final int	ERROR_CANNOT_INSERT = -1,
 								ERROR_CANNOT_DELETE = -1;
 	
 	AVLNode root = null;
 	int nodeCount = 0;
+	
+	private int joinCostTotal, joinCostCurrent, joinCount;
+	public int joinCostMax;
+	public float joinCostAvg;
 	
 	/**
 	 * public AVLTree()
@@ -662,14 +666,21 @@ public class AVLTree {
 			t2.root = xNode.right;
 		}*/
 		
+		joinCostTotal   = 0;
+		joinCostMax     = 0;
+		joinCostCurrent = 0;
+		joinCount       = 0;
+		
 		AVLNode p = (AVLNode) xNode;//.getParent();
 		
 		while (p != null && p.isRealNode()) {
 			if (p.getKey() < x) {
-				t1.join(p.clone(), ((AVLNode)p.getLeft()).toTree());
+				joinCostCurrent = t1.join(p.clone(), ((AVLNode)p.getLeft()).toTree());
+				joinCount++;
 			}
 			else if (x < p.getKey()) {
-				t2.join(p.clone(), ((AVLNode)p.getRight()).toTree());
+				joinCostCurrent = t2.join(p.clone(), ((AVLNode)p.getRight()).toTree());
+				joinCount++;
 			} else {
 				assertd(p == xNode);
 				if (p.left.isRealNode())  t1.root = p.left;
@@ -686,6 +697,14 @@ public class AVLTree {
 				}
 			}
 			p = (AVLNode) p.getParent();
+			joinCostTotal += joinCostCurrent;
+			joinCostMax    = Math.max(joinCostCurrent, joinCostMax);
+		}
+		
+		if (joinCount!=0) {
+			joinCostAvg = joinCostTotal / joinCount;
+		} else {
+			joinCostAvg = 0;
 		}
 		
 		AVLTree[] trees = new AVLTree[2];
@@ -707,6 +726,8 @@ public class AVLTree {
 	public AVLTree[] split(int x)
 	{
 		AVLTree mClone = this.clone();
+		this.joinCostAvg = mClone.joinCostAvg;
+		this.joinCostMax = mClone.joinCostMax;
 		return mClone.splitWithClonedNodes(x);
 	}
 	

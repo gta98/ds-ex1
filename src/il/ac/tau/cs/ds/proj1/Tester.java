@@ -19,13 +19,13 @@ public class Tester {
 		
 		System.out.println("Hello World!");
 		
-		Question1 q1 = new Question1(); // maybe add randomized parameters here
-		Question2 q2 = new Question2();
+		Question1 q1 = new Question1(SEED); // maybe add randomized parameters here
+		//Question2 q2 = new Question2(SEED);
 		
 		q1.test();
-		q2.test();
+		//q2.test();
 		
-		test();
+		//test();
 
 		/// INSERT TESTING HERE ///
 	}
