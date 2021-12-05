@@ -126,7 +126,10 @@ public class AVLTree {
 			return false;
 		}
 		if (FLAG_DEBUG) {
-			if (debugSize(p)!=size()) {
+			if (debugSize(p)!=((AVLNode)p).getSize()) {
+				System.out.println("Debug size = " + String.valueOf(debugSize(p)));
+				System.out.println("Actual size = " + String.valueOf(((AVLNode)p).getSize()));
+				
 				return false;
 			}
 		}
@@ -624,8 +627,15 @@ public class AVLTree {
 	}
 	
 	public int debugSize(IAVLNode p) {
-		if (!p.isRealNode()) return 0;
-		return 1+debugSize(p.getLeft())+debugSize(p.getRight());
+		int sum = 0;
+		if (!p.isRealNode()) {
+			return 0;
+		} else {
+			sum += 1;
+			sum += debugSize(p.getLeft());
+			sum += debugSize(p.getRight());
+			return sum;
+		}
 	}
 	
 	/**
@@ -731,6 +741,116 @@ public class AVLTree {
 		return mClone.splitWithClonedNodes(x);
 	}
 	
+	
+	public int joinWithClonedNodes2(IAVLNode x, AVLTree t) {
+		int complexity;
+		
+		if (this.empty() && t.empty()) {
+			logd("Edge case #1");
+			this.root = (AVLNode) x;
+			return 1;
+		} else if (this.empty()) {
+			logd("Edge case #2");
+			complexity = 2+t.getRoot().getHeight();
+			t.insert(x.getKey(), x.getValue());
+			this.root = (AVLNode) t.getRoot();
+			return complexity;
+		} else if (t.empty()) {
+			logd("Edge case #3");
+			complexity = 2+this.getRoot().getHeight();
+			this.insert(x.getKey(), x.getValue());
+			return complexity;
+		}
+		
+		AVLTree T1=null, T2=null;
+		AVLNode p1=null, p2=null;
+		AVLNode p=null, par=null;
+		int rank1, rank2;
+		if      (this.getRoot().getKey() < x.getKey()
+				&& x.getKey() < t.getRoot().getKey()) {
+			T1 = this;
+			T2 = t;
+		}
+		else if (t.getRoot().getKey() < x.getKey() &&
+				x.getKey() < this.getRoot().getKey()) {
+			T1 = t;
+			T2 = this;
+		}
+		else {
+			assertd(false);
+		}
+		p1 = (AVLNode) T1.getRoot();
+		p2 = (AVLNode) T2.getRoot();
+		
+		rank1 = p1.getHeight();
+		rank2 = p2.getHeight();
+		
+		if      (rank1 < rank2) {
+			while (rank1 < p2.getHeight()) {
+				if (p2.getLeft().isRealNode()) {
+					p2 = (AVLNode) p2.getLeft();
+				} else {
+					assertd(p2.getHeight() == 1+rank1);
+					// because otherwise p.getHeight() >= 2+rank1
+					// since rank1 >= 0, this means p.getHeight() >= 2
+					// so p.getRight().getHeight() >= 1
+					// and since p.getLeft().getHeight() == -1
+					// this gives us BF=2
+					
+					assertd(rank1 == 0);
+					// BF == (1+rank1-1)-(-1)=1+rank1 <= 1
+					// 0<=rank1, 1+rank1<=1
+					
+					p2 = (AVLNode) p2.getRight();
+					break;
+				}
+			}
+			
+			par = (AVLNode) p2.getParent();
+			if (rank1 >= 1) {
+				x.setLeft(p1);
+				x.setRight(p2);
+				par.setLeft(x);
+				balance((AVLNode)x);
+			} else {
+				assertd(rank1==0);
+				x.setLeft(p1);
+				par.setLeft(x);
+			}
+		}
+		else if (rank2 < rank1) {
+			while (rank2 < p1.getHeight()) {
+				if (p1.getRight().isRealNode()) {
+					p1 = (AVLNode) p1.getRight();
+				} else {
+					assertd(p1.getHeight() == 1+rank2);
+					assertd(rank2 == 0);
+					p1 = (AVLNode) p1.getLeft();
+					break;
+				}
+			}
+			
+			par = (AVLNode) p1.getParent();
+			if (rank2 >= 1) {
+				x.setLeft(p1);
+				x.setRight(p2);
+				par.setRight(x);
+				balance((AVLNode)x);
+			} else {
+				assertd(rank2==0);
+				x.setRight(p2);
+				par.setRight(x);
+			}
+		} else {
+			x.setLeft(p1);
+			x.setRight(p2);
+			this.root = (AVLNode) x;
+		}
+		
+		return Math.abs(rank1-rank2)+1;
+	}
+	
+	
 	/**
 	* public int join(IAVLNode x, AVLTree t)
 	*
@@ -740,28 +860,34 @@ public class AVLTree {
 	* precondition: keys(t) < x < keys() or keys(t) > x > keys(). t/tree might be empty (rank = -1).
 	* postcondition: none
 	*/	
-	public int join(IAVLNode x, AVLTree t)
+	public int join(IAVLNode x, AVLTree t) {
+		AVLTree tClone = t.clone();
+		AVLNode xClone = ((AVLNode)x).deepClone();
+		return joinWithClonedNodes2(xClone, tClone);
+	}
+	
+	public int joinWithClonedNodes(IAVLNode x, AVLTree t)
 	{
 		int complexity;
 		if (this.empty() && t.empty()) {
-			//logd("Scenario 1");
+			logd("Scenario 1");
 			this.root = (AVLNode) x;
 			this.nodeCount = 1;
 			return 1;
 		} else if (this.empty()) {
-			//logd("Scenario 2");
+			logd("Scenario 2");
 			complexity = 2+t.getRoot().getHeight();
 			t.insert(x.getKey(), x.getValue());
 			this.root = (AVLNode) t.getRoot();
 			this.nodeCount = t.size();
 			return complexity;
 		} else if (t.empty()) {
-			//logd("Scenario 3");
+			logd("Scenario 3");
 			complexity = 2+this.getRoot().getHeight();
 			this.insert(x.getKey(), x.getValue());
 			return complexity;
 		}
-		//logd("Scenario 4");
+		logd("Scenario 4 for " + String.valueOf(x.getKey()));
 		
 		complexity = Math.abs(this.root.getHeight() - t.getRoot().getHeight()) + 1;
 		int newCount = this.size() + t.size() + 1;
@@ -787,18 +913,20 @@ public class AVLTree {
 				if (b.getLeft().isRealNode()) b=(AVLNode)b.getLeft();
 				else                          b=(AVLNode)b.getRight();
 			}
+			//if ((!))
 			assertd(b.getHeight()==k || b.getHeight()==k-1);
 			c = (AVLNode) b.getParent();
 			x.setLeft(a);
+			x.setRight(b);
 			// b doesnt have to be the left child of c
 			// but if it's not, then by definition c has no left child
 			// because we traversed by going left
 			// also, this can't go on for more than 2 steps due to BF
 			c.setLeft(x);
-			x.setRight(b);
 			((AVLNode)x).update();
+			((AVLNode)c).update();
 			assertd(c.getHeight()==k+1 || c.getHeight()==k+2);
-			//rebalanceOperations += balance((AVLNode)x);
+			rebalanceOperations += balance((AVLNode)x);
 			rebalanceOperations += balance((AVLNode)c);
 		} else if (T1.getRoot().getHeight() > T2.getRoot().getHeight()){
 			int k = T2.getRoot().getHeight();
@@ -814,11 +942,12 @@ public class AVLTree {
 			c.setRight(x);
 			x.setRight(b);
 			((AVLNode)x).update();
+			((AVLNode)c).update();
 			if (!(c.getHeight()==k+1 || c.getHeight()==k+2)) {
 				logd("About to throw assertion");
 			}
 			assertd(c.getHeight()==k+1 || c.getHeight()==k+2);
-			//rebalanceOperations += balance((AVLNode)x);
+			rebalanceOperations += balance((AVLNode)x);
 			rebalanceOperations += balance((AVLNode)c);
 		} else {
 			x.setLeft(T1.getRoot());
@@ -826,14 +955,19 @@ public class AVLTree {
 			((AVLNode)x).update();
 			// no rebalancing needed?
 		}
+		//assertd(T1.isValidAVL());
+		//assertd(T2.isValidAVL());
 		AVLNode newRoot = (AVLNode) x;
 		while (newRoot.getParent() != null) {
 			newRoot = (AVLNode) newRoot.getParent();
 		}
 		root = newRoot;
 		this.nodeCount = newCount;
+		assert(this.isValidAVL());
 		return complexity;
 	}
+	
+	
 
 	/** 
 	* public interface IAVLNode
@@ -931,7 +1065,6 @@ public class AVLTree {
 				return;
 			}
 			update();
-			((AVLNode)node).setIsParentLeft(true); // FIXME pray to god this works
 		}
 		public void setRight(IAVLNode node) {
 			AVLNode old = this.right;
@@ -996,12 +1129,8 @@ public class AVLTree {
 			}
 			
 			// bst
-			if (left.isRealNode() && !(left.getKey()<this.getKey())) {
-				throw new Exception("BST error, left");
-			}
-			if (right.isRealNode() && !(right.getKey()>this.getKey())) {
-				throw new Exception("BST error, right");
-			}
+			assertd(!(left.isRealNode() && !(left.getKey()<this.getKey())));
+			assertd(!(right.isRealNode() && !(right.getKey()>this.getKey())));
 		}
 		
 		public void setIsParentLeft(boolean v) { this.isParentLeft = v; }
@@ -1062,7 +1191,8 @@ public class AVLTree {
 		
 		public AVLTree toTree() {
 			AVLTree t = new AVLTree();
-			t.root = this;
+			t.root = this.deepClone();
+			t.root.parent = null;
 			t.nodeCount = this.size;
 			return t;
 		}
@@ -1077,7 +1207,12 @@ public class AVLTree {
 	}
 	
 	public static void assertd(boolean condition) {
-		if (FLAG_DEBUG) assert(condition);
+		if (FLAG_DEBUG) {
+			if (!condition) {
+				System.out.println("About to throw assertion");
+				assert(condition);
+			}
+		}
 	}
 	
 	public static void logd(String s) {
