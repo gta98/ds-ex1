@@ -30,23 +30,30 @@ public class Question2 {
 			tree[i] = new AVLTree();
 		}
 		
-		for (int i=1; i<=2; i++) {
-			treeSize = (int)2000*((int)Math.pow(2, i));
+		for (int i=1; i<=10; i++) {
+			treeSize = (int)1000*((int)Math.pow(2, i));
 			for (int k=0; k<treeSize; k++) {
 				tree[i].insert(k, null);
 			}
-			System.out.println("Is AVL orig? " + String.valueOf(tree[i].isValidAVL()));
+			//System.out.println("Is AVL orig? " + String.valueOf(tree[i].isValidAVL()));
 			splitWith=rand.nextInt(treeSize)+0;
+			splitWith = ((AVLNode)tree[i].getRoot().getLeft()).getMaxChild().getKey();
 			int origiRank = tree[i].getRoot().getHeight();
 			AVLTree[] trees = tree[i].split(splitWith);
+			int fishJoinCostMax = tree[i].joinCostMax;
+			double fishJoinCostAvg = tree[i].joinCostAvg;
+			int fishJoinCostTotal = tree[i].joinCostTotal;
+			int fishJoinCount     = tree[i].joinCount;
+			fishJoinCostAvg = ((double)fishJoinCostTotal)/((double)fishJoinCount);
 			AVLTree t1 = trees[0];
 			AVLTree t2 = trees[1];
-			System.out.println("Is AVL 1? " + String.valueOf(t1.isValidAVL()));
-			System.out.println("Is AVL 2? " + String.valueOf(t2.isValidAVL()));
+			//System.out.println("Is AVL 1? " + String.valueOf(t1.isValidAVL()));
+			//System.out.println("Is AVL 2? " + String.valueOf(t2.isValidAVL()));
 			AVLNode node = t1.new AVLNode(splitWith, null);
 			int joinCostTotal = t1.join(node, t2);
-			System.out.println(String.format("For i=%d\n\tjoinCostMax=%d,joinCostAvg=%f", i, tree[i].joinCostMax,tree[i].joinCostAvg));
-			System.out.println(String.format("CostTotal=%d,theory=%f", joinCostTotal, calcTheory2(origiRank)));
+			//System.out.println(String.format("i=%d : joinCostMax=%d,joinCostAvg=%f, joinCostTotal=%d,joinCount=%d", i, fishJoinCostMax,fishJoinCostAvg, fishJoinCostTotal,fishJoinCount));
+			System.out.println(String.format("i=%d : joinCostMax=%d,joinCostAvg=%f", i, fishJoinCostMax,fishJoinCostAvg));
+			//System.out.println(String.format("CostTotal=%d,theory=%f", joinCostTotal, calcTheory2(origiRank)));
 		}
 	}
 	

@@ -13,7 +13,7 @@ package il.ac.tau.cs.ds.proj1;
 
 public class AVLTree {
 	
-	private static final boolean FLAG_DEBUG = true;
+	private static final boolean FLAG_DEBUG = false;//true;
 	
 	private static final int	ERROR_CANNOT_INSERT = -1,
 								ERROR_CANNOT_DELETE = -1;
@@ -21,7 +21,7 @@ public class AVLTree {
 	AVLNode root = null;
 	int nodeCount = 0;
 	
-	private int joinCostTotal, joinCostCurrent, joinCount;
+	public int joinCostTotal, joinCostCurrent, joinCount;
 	public int joinCostMax;
 	public float joinCostAvg;
 	
@@ -348,6 +348,63 @@ public class AVLTree {
 		return countRotations;
 	}
 	
+	/**
+	 * public int fingerInsertion(int k, String k)
+	 * 
+	 * Inserts (finger) in O(k)
+	 * where k is the distance between our key and maximal value
+	 */
+	public int fingerInsertion(int k, String i) {
+		if (root == null) {
+			root = new AVLNode(k, i);
+			nodeCount++;
+			return 0;
+		} else return fingerInsertionAssistant(root.getMaxChild(), new AVLNode(k, i));
+	}
+	
+	private int fingerInsertionAssistant(AVLNode location, AVLNode node) {
+		if (!location.isRealNode()) return ERROR_CANNOT_INSERT;
+		int countOperations = 0;
+		if        (node.getKey() < location.getKey()) {
+			//if (location.getLeft().)
+			if (!location.getLeft().isRealNode()) {
+				nodeCount++;
+				location.setLeft(node);
+			}
+			else countOperations += insertHelper((AVLNode)location.getLeft(), node);
+		} else if (node.getKey() > location.getKey()) {
+			if (!location.getRight().isRealNode()) {
+				nodeCount++;
+				location.setRight(node);
+			}
+			else countOperations += insertHelper((AVLNode)location.getRight(), node);
+		} else {
+			countOperations = ERROR_CANNOT_INSERT;
+		}
+		if (countOperations == ERROR_CANNOT_INSERT) return ERROR_CANNOT_INSERT;
+		int oldHeight;
+		boolean hadToUpdateHeight = false;
+		if (countOperations != ERROR_CANNOT_INSERT) {
+			oldHeight = location.getHeight();
+			location.update();
+			if (oldHeight != location.getHeight()) hadToUpdateHeight = true;
+		}
+		
+		int balanceOperations = balance(location);
+		if (balanceOperations == 0) {
+			if (hadToUpdateHeight) {
+				countOperations += 1;
+			} else {
+				// do nothing
+			}
+		} else if (balanceOperations > 0){
+			// A promotion/rotation counts as one re-balance operation, double-rotation is counted as 2.
+			countOperations += balanceOperations;
+		}
+		
+		return countOperations;
+	}
+	
 	private int insertHelper(AVLNode location, AVLNode node) {
 		if (!location.isRealNode()) return ERROR_CANNOT_INSERT;
 		int countOperations = 0;
@@ -657,7 +714,12 @@ public class AVLTree {
 		return t;
 	}
 	
-	public AVLTree[] splitWithClonedNodes(int x) {
+	private static class IntegerPointer<T>{
+		public T x;
+		public IntegerPointer() {}
+	}
+	
+	public AVLTree[] splitWithClonedNodes(int x, IntegerPointer pJoinCostMax, IntegerPointer pJoinCostAvg, IntegerPointer pJoinCount, IntegerPointer pJoinCostTotal) {
 		AVLNode xNode = searchNode(x);
 		if (!xNode.isRealNode()) {
 			this.insert(x, null);
@@ -717,13 +779,18 @@ public class AVLTree {
 			joinCostAvg = 0;
 		}
 		
+		pJoinCostAvg.x = joinCostAvg;
+		pJoinCostMax.x = joinCostMax;
+		pJoinCount.x   = joinCount;
+		pJoinCostTotal.x = joinCostTotal;
+
 		AVLTree[] trees = new AVLTree[2];
 		trees[0] = t1;
 		trees[1] = t2;
 		return trees;
 	}
 	
-	// FIXME not implemented (yes, really)
+	
 	/**
 	* public AVLTree[] split(int x)
 	*
@@ -736,9 +803,19 @@ public class AVLTree {
 	public AVLTree[] split(int x)
 	{
 		AVLTree mClone = this.clone();
-		this.joinCostAvg = mClone.joinCostAvg;
-		this.joinCostMax = mClone.joinCostMax;
-		return mClone.splitWithClonedNodes(x);
+		IntegerPointer<Float> pJoinCostAvg   = new IntegerPointer<>();
+		IntegerPointer<Integer> pJoinCostMax = new IntegerPointer<>();
+		IntegerPointer<Integer> pJoinCount   = new IntegerPointer<>();
+		IntegerPointer<Integer> pJoinCostTotal = new IntegerPointer<>();
+		//this.joinCostAvg = mClone.joinCostAvg;
+		//this.joinCostMax = mClone.joinCostMax;
+		//System.out.println("JoinCostMax="+String.valueOf(mClone.joinCostMax));
+		AVLTree[] trees= mClone.splitWithClonedNodes(x, pJoinCostMax, pJoinCostAvg, pJoinCount, pJoinCostTotal);
+		this.joinCostAvg = pJoinCostAvg.x;
+		this.joinCostMax = pJoinCostMax.x;
+		this.joinCount   = pJoinCount.x;
+		this.joinCostTotal = pJoinCostTotal.x;
+		return trees;
 	}
 	
 	
