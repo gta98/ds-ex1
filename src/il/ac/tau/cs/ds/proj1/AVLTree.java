@@ -116,6 +116,7 @@ public class AVLTree {
 	 * @complexity: O(n)
 	 */
 	public boolean isValidAVL(IAVLNode p) {
+		if (p==null) return true;
 		if (!isValidHierarchy(p)) {
 			return false;
 		}
@@ -782,6 +783,7 @@ public class AVLTree {
 	 * @complexity: O(n)
 	 */
 	private AVLNode[] treeToArray() {
+		if (this.root == null) return new AVLNode[0];
 		AVLNode[] arr = new AVLNode[this.size()];
 		AVLNode[] stack_pending = new AVLNode[this.size()];
 		//logd(String.format("Debug size is %d", debugSize(this.root)));
@@ -817,7 +819,7 @@ public class AVLTree {
 	public int[] keysToArray() {
 		AVLNode nodes[] = this.treeToArray();
 		if (nodes == null)
-			return null; // FIXME empty array?
+			return new int[0]; // FIXME empty array?
 
 		int keys[] = new int[nodes.length];
 		for (int i = 0; i < nodes.length; i++)
@@ -868,6 +870,7 @@ public class AVLTree {
 	 * @complexity: O(n)
 	 */
 	public int debugSize(IAVLNode p) {
+		if (p==null) return 0;
 		int sum = 0;
 		int sumLeft, sumRight;
 		if (!p.isRealNode()) {
@@ -1031,24 +1034,18 @@ public class AVLTree {
 		}
 		p = (AVLNode) p.getParent();
 		
-		// a little duct tape yeah just yeah thats how i like it
 		AVLTree fakeTree;
-		IAVLNode fakeTreeOldParent;
 		
 		while (p != null) {
 			if      (p.getKey() < x) {
 				fakeTree = ((AVLNode)p.getLeft()).toTree(); // O(1) - just pointer assignment in toTree()...
-				fakeTreeOldParent = fakeTree.root.getParent();
-				fakeTree.root.setParent(null);
+				fakeTree.root.setParent(null); // a little duct tape yesh
 				t1.join(p.clone(), fakeTree);
-				fakeTree.root.setParent(fakeTreeOldParent);
 			}
 			else if (p.getKey() > x) {
 				fakeTree = ((AVLNode)p.getRight()).toTree(); // O(1) - just pointer assignment in toTree()...
-				fakeTreeOldParent = fakeTree.root.getParent();
-				fakeTree.root.setParent(null);
+				fakeTree.root.setParent(null); // a little duct tape yesh
 				t2.join(p.clone(), fakeTree);
-				fakeTree.root.setParent(fakeTreeOldParent);
 				
 			} else {
 				assertd(false);
@@ -1089,6 +1086,9 @@ public class AVLTree {
 			this.insert(x.getKey(), x.getValue());
 			return 2+this.root.getHeight();
 		}
+		
+		IAVLNode oldParentT = t.getRoot().getParent();
+		t.getRoot().setParent(null);
 		
 		AVLTree T1 = null, T2 = null;
 		AVLNode p1 = null, p2 = null;
@@ -1198,7 +1198,7 @@ public class AVLTree {
 			par = (AVLNode) par.getParent();
 			//par = parPar;
 		}
-		
+
 		return Math.abs(rank1 - rank2) + 1;
 	}
 

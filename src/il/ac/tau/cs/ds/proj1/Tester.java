@@ -185,9 +185,11 @@ public class Tester {
 	public static void randomActions() {
 		System.out.println("randomActions() - START");
 		//insertSpecificList();
-		randomSplitTest(SEED);
+		problematicSplitTest1();
+		randomSplitTest(SEED,100, 1000);
+		randomSplitTest(SEED,1000, 100);
 
-		//randomJoinTrees(SEED,100);
+		randomJoinTrees(SEED,100);
 		
 		/*AVLTree t = new AVLTree();
 		AVLSequence seq = new AVLSequence(SEED, 6);
@@ -207,19 +209,42 @@ public class Tester {
 		System.out.println("randomActions() - END");
 	}
 	
-	public static void randomSplitTest(long seed) {
+	public static void randomSplitTest(long seed, int testCount, int maxSize) {
+		Random rand = new Random(seed);
+		for (int jojo=0; jojo<testCount; jojo++) {
+			int keyBoundLower = rand.nextInt(maxSize)+1;
+			int keyBoundUpper = keyBoundLower+maxSize + rand.nextInt(maxSize);
+			int keySplit = keyBoundLower + rand.nextInt(keyBoundUpper-keyBoundLower);
+			AVLTree tree = new AVLTree();
+			insertRandomly(tree, keyBoundUpper, keyBoundLower, seed);
+			int[] keys = tree.keysToArray();
+			//deleteRandomOrder(tree, keys, seed*2);
+			assert(tree.isValidAVL());
+			
+			AVLTree[] splits = tree.split(keySplit);
+			for (int i=0; i<splits.length; i++) {
+				int[] mKeys = splits[i].keysToArray();
+				assert(splits[i].isValidAVL());
+			}
+			assert(splits[0].size()+splits[1].size()+1 == tree.size());
+		}
+	}
+	
+	public static void problematicSplitTest1() {
 		AVLTree[] trees = insertRandomStress(17,17);
 		AVLTree tree = trees[0];
 		int[] keys = tree.keysToArray();
 		//deleteRandomOrder(tree, keys, seed*2);
 		System.out.println(String.format("We have %d keys", keys.length));
 		System.out.println(String.format("Is AVL: %d", tree.isValidAVL()?1:0));
+		assert(tree.isValidAVL());
 		
 		AVLTree[] splits = tree.split(6);
 		for (int i=0; i<splits.length; i++) {
 			int[] mKeys = splits[i].keysToArray();
 			System.out.println(String.format("IN SPLIT #%d we have %d keys", i+1, mKeys.length));
 			System.out.println(String.format("Is AVL: %d", splits[i].isValidAVL()?1:0));
+			assert(splits[i].isValidAVL());
 		}
 		assert(splits[0].size()+splits[1].size()+1 == tree.size());
 	}
