@@ -405,7 +405,7 @@ public class AVLTree {
 	
 	
 	/**
-	 * public AVLTree[] splitHelper(int x)
+	 * private AVLTree[] splitHelper(int x)
 	 *
 	 * Helper for split(int x)
 	 * This exists in case we decide to treat the tree root differently
@@ -416,7 +416,7 @@ public class AVLTree {
 	 * @post: completely destroyed tree (you said postcondition is none)
 	 * @complexity: O((logn)^2)
 	 */
-	public AVLTree[] splitHelper(int x) {
+	private AVLTree[] splitHelper(int x) {
 		joinCostTotal = 0;
 		joinCostMax = 0;
 		joinCostCurrent = 0;
@@ -865,7 +865,7 @@ public class AVLTree {
 	 * @pre: child node of this.root
 	 * @complexity: O(1)
 	 */
-	public IAVLNode rotateRightAbout(IAVLNode node) {
+	private IAVLNode rotateRightAbout(IAVLNode node) {
 		Logger.assertd(node.isRealNode());
 		@SuppressWarnings("unused")
 		IAVLNode A, B, C, D, E;
@@ -915,7 +915,7 @@ public class AVLTree {
 	 * @pre: child node of this.root
 	 * @complexity: O(1)
 	 */
-	public IAVLNode rotateLeftAbout(IAVLNode node) {
+	private IAVLNode rotateLeftAbout(IAVLNode node) {
 		Logger.assertd(node.isRealNode());
 		@SuppressWarnings("unused")
 		IAVLNode A, B, C, D, E;
@@ -1460,6 +1460,7 @@ public class AVLTree {
 			return new AVLNode(this.key, this.info);
 		}
 
+		// ONLY USED IN DEBUGGING
 		// @complexity: O(n)
 		public AVLNode deepClone() {
 			if (!this.isRealNode())
