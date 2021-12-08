@@ -4,7 +4,10 @@ package il.ac.tau.cs.ds.proj1;
  *
  * AVLTree
  *
- * An implementation of aמ AVL Tree with distinct integer keys and info.
+ * An implementation of an AVL Tree with distinct integer keys and info.
+ *
+ * 		REDACTED REDACTED: REDACTED, REDACTED
+ * 		REDACTED REDACTED: REDACTED, REDACTED
  *
  */
 
@@ -1473,7 +1476,7 @@ public class AVLTree {
 
 }
 
-// only used to pass results back from splitWithClonedNodes
+// only used for passing results back from splitWithClonedNodes
 final class PointerObject<T> {
 	public T x;
 
