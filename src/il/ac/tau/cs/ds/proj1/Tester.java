@@ -25,9 +25,9 @@ public class Tester {
 		//q1.test();
 		//q2.test();
 		
-		//randomActions2();
+		randomActions2();
 		//Question2 q2 = new Question2(SEED);
-		//test();
+		test();
 		
 		/// INSERT TESTING HERE ///
 	}
