@@ -359,7 +359,7 @@ public class Tester {
 			}
 			inserted++;
 		}
-		System.out.println("Total inserted " + String.valueOf(inserted));
+		//System.out.println("Total inserted " + String.valueOf(inserted));
 	}
 	
 	@SuppressWarnings("unused")

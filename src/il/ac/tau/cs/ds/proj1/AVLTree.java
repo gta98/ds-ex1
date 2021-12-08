@@ -912,85 +912,6 @@ public class AVLTree {
 		return t;
 	}
 
-	// only used to pass results back from splitWithClonedNodes
-	private static class PointerObject<T> {
-		public T x;
-
-		public PointerObject() {
-		}
-	}
-
-	// FIXME - get rid of clone
-	public AVLTree[] splitWithClonedNodes(int x, PointerObject pJoinCostMax, PointerObject pJoinCostAvg,
-			PointerObject pJoinCount, PointerObject pJoinCostTotal) {
-		AVLNode xNode = searchNode(x);
-		if (!xNode.isRealNode()) {
-			this.insert(x, null);
-			xNode = searchNode(x);
-			assertd(xNode.isRealNode());
-		}
-
-		AVLTree t1, t2;
-		t1 = new AVLTree();
-		t2 = new AVLTree();
-
-		/*
-		 * if (xNode.left.isRealNode()) { t1.root = xNode.left; } if
-		 * (xNode.right.isRealNode()) { t2.root = xNode.right; }
-		 */
-
-		joinCostTotal = 0;
-		joinCostMax = 0;
-		joinCostCurrent = 0;
-		joinCount = 0;
-
-		AVLNode p = (AVLNode) xNode;// .getParent();
-
-		while (p != null && p.isRealNode()) {
-			if (p.getKey() < x) {
-				joinCostCurrent = t1.join(p.clone(), ((AVLNode) p.getLeft()).toTree());
-				joinCount++;
-			} else if (x < p.getKey()) {
-				joinCostCurrent = t2.join(p.clone(), ((AVLNode) p.getRight()).toTree());
-				joinCount++;
-			} else {
-				assertd(p == xNode);
-				if (p.left.isRealNode())
-					t1.root = p.left;
-				if (p.right.isRealNode())
-					t2.root = p.right;
-			}
-
-			if (p.parent != null) {
-				assertd(p == p.parent.left || p == p.parent.right);
-				if (p == p.parent.left) {
-					p.parent.setLeft(new AVLNode(-1, null));
-				} else {
-					p.parent.setRight(new AVLNode(-1, null));
-				}
-			}
-			p = (AVLNode) p.getParent();
-			joinCostTotal += joinCostCurrent;
-			joinCostMax = Math.max(joinCostCurrent, joinCostMax);
-		}
-
-		if (joinCount != 0) {
-			joinCostAvg = joinCostTotal / joinCount;
-		} else {
-			joinCostAvg = 0;
-		}
-
-		pJoinCostAvg.x = joinCostAvg;
-		pJoinCostMax.x = joinCostMax;
-		pJoinCount.x = joinCount;
-		pJoinCostTotal.x = joinCostTotal;
-
-		AVLTree[] trees = new AVLTree[2];
-		trees[0] = t1;
-		trees[1] = t2;
-		return trees;
-	}
-
 	/**
 	 * public AVLTree[] split(int x)
 	 *
@@ -999,30 +920,46 @@ public class AVLTree {
 	 * 
 	 * precondition: search(x) != null (i.e. you can also assume that the tree is
 	 * not empty) postcondition: none
+	 * 
+	 * @post: AVLTree[] with splitted arrays
+	 * @post: completely destroyed tree (you said postcondition is none)
+	 * @complexity: O((logn)^2)
 	 */
 	public AVLTree[] split(int x) {
-		AVLTree mClone = this.clone();
-		PointerObject<Float> pJoinCostAvg = new PointerObject<>();
-		PointerObject<Integer> pJoinCostMax = new PointerObject<>();
-		PointerObject<Integer> pJoinCount = new PointerObject<>();
-		PointerObject<Integer> pJoinCostTotal = new PointerObject<>();
+		//AVLTree mClone = this.clone();
+		//PointerObject<Float> pJoinCostAvg = new PointerObject<>();
+		//PointerObject<Integer> pJoinCostMax = new PointerObject<>();
+		//PointerObject<Integer> pJoinCount = new PointerObject<>();
+		//PointerObject<Integer> pJoinCostTotal = new PointerObject<>();
 		// this.joinCostAvg = mClone.joinCostAvg;
 		// this.joinCostMax = mClone.joinCostMax;
 		// System.out.println("JoinCostMax="+String.valueOf(mClone.joinCostMax));
 		//AVLTree[] trees = mClone.splitWithClonedNodes(x, pJoinCostMax, pJoinCostAvg, pJoinCount, pJoinCostTotal);
-		AVLTree[] trees = mClone.splitWithClonedNodes2(x);
-		pJoinCostAvg.x = new Float(0);
-		pJoinCostMax.x = 0;
-		pJoinCount.x = 0;
-		pJoinCostTotal.x = 0;
-		this.joinCostAvg = pJoinCostAvg.x;
-		this.joinCostMax = pJoinCostMax.x;
-		this.joinCount = pJoinCount.x;
-		this.joinCostTotal = pJoinCostTotal.x;
+		AVLTree[] trees = this.splitHelper(x);
+		//pJoinCostAvg.x = new Float(0);
+		//pJoinCostMax.x = 0;
+		//pJoinCount.x = 0;
+		//pJoinCostTotal.x = 0;
+		//this.joinCostAvg = pJoinCostAvg.x;
+		//this.joinCostMax = pJoinCostMax.x;
+		//this.joinCount = pJoinCount.x;
+		//this.joinCostTotal = pJoinCostTotal.x;
 		return trees;
 	}
 	
-	public AVLTree[] splitWithClonedNodes2(int x) {
+	/**
+	 * public AVLTree[] splitHelper(int x)
+	 *
+	 * Helper for split(int x)
+	 * This exists in case we decide to treat the tree root differently
+	 * that way we can perform whatever manipulations in split(...)
+	 * and call this
+	 * 
+	 * @post: AVLTree[] with splitted arrays
+	 * @post: completely destroyed tree (you said postcondition is none)
+	 * @complexity: O((logn)^2)
+	 */
+	public AVLTree[] splitHelper(int x) {
 		joinCostTotal = 0;
 		joinCostMax = 0;
 		joinCostCurrent = 0;
@@ -1034,8 +971,8 @@ public class AVLTree {
 		
 		AVLNode p = searchNode(x);
 		if (p.isRealNode()) {
-			t1.root = (AVLNode) p.getLeft();
-			t2.root = (AVLNode) p.getRight();
+			if (p.getLeft().isRealNode()) t1.root = (AVLNode) p.getLeft();
+			if (p.getRight().isRealNode()) t2.root = (AVLNode) p.getRight();
 		}
 		p = (AVLNode) p.getParent();
 		
@@ -1043,14 +980,14 @@ public class AVLTree {
 		
 		while (p != null) {
 			if      (p.getKey() < x) {
-				fakeTree = ((AVLNode)p.getLeft()).toTree(); // O(1) - just pointer assignment in toTree()...
-				fakeTree.root.setParent(null); // a little duct tape yesh
+				fakeTree = ((AVLNode)p.getLeft()).toTree(); // @complexity: O(1) - just pointer assignment in toTree()...
+				if (fakeTree.root != null) fakeTree.root.setParent(null); // a little duct tape yesh
 				joinCostCurrent = t1.join(p.clone(), fakeTree);
 				joinCount++;
 			}
 			else if (p.getKey() > x) {
-				fakeTree = ((AVLNode)p.getRight()).toTree(); // O(1) - just pointer assignment in toTree()...
-				fakeTree.root.setParent(null); // a little duct tape yesh
+				fakeTree = ((AVLNode)p.getRight()).toTree(); // @complexity: O(1) - just pointer assignment in toTree()...
+				if (fakeTree.root != null) fakeTree.root.setParent(null); // a little duct tape yesh
 				joinCostCurrent = t2.join(p.clone(), fakeTree);
 				joinCount++;
 				
@@ -1079,7 +1016,8 @@ public class AVLTree {
 	 * precondition: keys(t) < x < keys() or keys(t) > x > keys(). t/tree might be
 	 * empty (rank = -1). postcondition: none
 	 * 
-	 * @complexity: O(|rank1-rank2|+1)
+	 * @post: AVLTree t is destroyed in the process (you said postcondition is none)
+	 * @complexity: O(|rank1-rank2|+1) = O(logn)
 	 */
 	public int join(IAVLNode x, AVLTree t) {
 		assertd(!x.getLeft().isRealNode() && !x.getRight().isRealNode());
@@ -1200,6 +1138,7 @@ public class AVLTree {
 		AVLNode parPar;
 		
 		// the following does not hurt O(|rank1-rank2|+1) complexity
+		// we're strictly climbing up
 		while (par != null) {
 			parPar = (AVLNode) par.getParent();
 			((AVLNode)par).update();
@@ -1262,6 +1201,7 @@ public class AVLTree {
 		boolean isParentLeft;
 		AVLNode minChild = null, maxChild = null;
 
+		// @complexity: O(1)
 		public AVLNode(int key, String value) {
 			this.key = key;
 			this.info = value;
@@ -1291,32 +1231,32 @@ public class AVLTree {
 			}
 		}
 
-		// O(1)
+		// @complexity: O(1)
 		public int getKey() {
 			return this.key;
 		}
 
-		// O(1)
+		// @complexity: O(1)
 		public String getValue() {
 			return this.info;
 		}
 
-		// O(1)
+		// @complexity: O(1)
 		public IAVLNode getParent() {
 			return this.parent;
 		}
 
-		// O(1)
+		// @complexity: O(1)
 		public IAVLNode getLeft() {
 			return this.left;
 		}
 
-		// O(1)
+		// @complexity: O(1)
 		public IAVLNode getRight() {
 			return this.right;
 		}
 
-		// O(1)
+		// @complexity: O(1)
 		public int getHeight() {
 			return this.height;
 		}
@@ -1343,7 +1283,7 @@ public class AVLTree {
 			return this.minChild;
 		}
 
-		// O(1)
+		// @complexity: O(1)
 		public void setLeft(IAVLNode node) {
 			AVLNode old = this.left;
 			this.left = (AVLNode) node;
@@ -1359,7 +1299,7 @@ public class AVLTree {
 			update();
 		}
 
-		// O(1)
+		// @complexity: O(1)
 		public void setRight(IAVLNode node) {
 			AVLNode old = this.right;
 			this.right = (AVLNode) node;
@@ -1374,42 +1314,42 @@ public class AVLTree {
 			update();
 		}
 
-		// O(1)
+		// @complexity: O(1)
 		public void setParent(IAVLNode node) {
 			this.parent = (AVLNode) node;
 		}
 
-		// O(1)
+		// @complexity: O(1)
 		public void setHeight(int height) {
 			assertd(isRealNode());
 			this.height = height;
 		}
 
-		// O(1)
+		// @complexity: O(1)
 		public boolean isRealNode() {
 			return !virtual;
 		}
 
-		// O(1)
+		// @complexity: O(1)
 		public int getBF() {
 			return this.right.getHeight() - this.left.getHeight();
 		}
 
-		// O(1)
+		// @complexity: O(1)
 		private void updateSize() {
 			if (!isRealNode())
 				return;
 			this.size = 1 + this.left.getSize() + this.right.getSize();
 		}
 
-		// O(1)
+		// @complexity: O(1)
 		private void updateHeight() {
 			if (!isRealNode())
 				return;
 			this.setHeight(1 + Math.max(this.left.getHeight(), this.right.getHeight()));
 		}
 
-		// O(1)
+		// @complexity: O(1)
 		private void updateMinMax() {
 			if (!isRealNode())
 				return;
@@ -1417,14 +1357,14 @@ public class AVLTree {
 			this.maxChild = this.right.isRealNode() ? this.right.maxChild : this;
 		}
 
-		// O(1)
+		// @complexity: O(1)
 		public void update() {
 			updateSize();
 			updateHeight();
 			updateMinMax();
 		}
 
-		// O(1)
+		// @complexity: O(1)
 		private void assertAVL() throws Exception {
 			if (!isRealNode())
 				return;
@@ -1440,27 +1380,29 @@ public class AVLTree {
 			assertd(!(right.isRealNode() && right.getKey() < this.getKey()));
 		}
 
-		// O(1)
+		// @complexity: O(1)
 		public void setIsParentLeft(boolean v) {
 			this.isParentLeft = v;
 		}
 
-		// O(1)
+		// @complexity: O(1)
 		public boolean getIsParentLeft() {
 			return this.isParentLeft;
 		}
 
-		// O(1)
+		// @complexity: O(1)
 		public int getSize() {
 			return this.size;
 		}
 		// public void setKey(int key) { this.key = key; }
 
+		// @complexity: O(1)
 		public void partialCopyFrom(AVLNode node) {
 			this.key = node.getKey();
 			this.info = node.getValue();
 		}
 
+		// @complexity: O(1)
 		public void fullCopyFrom(AVLNode node) {
 			this.key = node.getKey();
 			this.info = node.getValue();
@@ -1474,12 +1416,13 @@ public class AVLTree {
 			this.virtual = !node.isRealNode();
 		}
 
+		// @complexity: O(1)
 		@Override
 		public AVLNode clone() {
 			return new AVLNode(this.key, this.info);
 		}
 
-		// O(n)
+		// @complexity: O(n)
 		public AVLNode deepClone() {
 			if (!this.isRealNode())
 				return new AVLNode(-1, null);
@@ -1493,10 +1436,7 @@ public class AVLTree {
 			return node;
 		}
 
-		public void select(AVLNode node) {
-
-		}
-
+		// @complexity: O(1)
 		public void becomeVirtual() {
 			assertd(!this.left.isRealNode() && !this.right.isRealNode());
 			this.left = null;
@@ -1508,12 +1448,15 @@ public class AVLTree {
 			this.virtual = true;
 		}
 
+		// @complexity: O(1)
 		public AVLTree toTree() {
 			AVLTree t = new AVLTree();
-			t.root = this;
+			if (this.isRealNode()) t.root = this;
+			else t.root = null;
 			return t;
 		}
 
+		// @complexity: O(n)
 		public AVLTree toTreeClone() {
 			AVLTree t = new AVLTree();
 			t.root = this.deepClone();
@@ -1535,6 +1478,14 @@ public class AVLTree {
 	public static void logd(String s) {
 		if (FLAG_VERBOSE)
 			System.out.println(s);
+	}
+	
+	// only used to pass results back from splitWithClonedNodes
+	private static class PointerObject<T> {
+		public T x;
+
+		public PointerObject() {
+		}
 	}
 
 }
