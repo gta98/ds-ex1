@@ -22,6 +22,7 @@ public class AVLTree {
 	public int joinCostMax;
 	public float joinCostAvg;
 
+	
 	/**
 	 * public AVLTree()
 	 * 
@@ -33,6 +34,7 @@ public class AVLTree {
 		this.root = null;
 	}
 
+	
 	/**
 	 * public AVLTree(AVLNode root)
 	 * 
@@ -43,6 +45,7 @@ public class AVLTree {
 	public AVLTree(AVLNode root) {
 		this.root = root;
 	}
+	
 	
 	/**
 	 * public boolean empty()
@@ -56,6 +59,7 @@ public class AVLTree {
 	public boolean empty() {
 		return root == null || !root.isRealNode();
 	}
+	
 	
 	/**
 	 * public String search(int k)
@@ -73,461 +77,8 @@ public class AVLTree {
 			return null;
 		return p.getValue();
 	}
-
-	/**
-	 * public boolean isValidHierarchy(IAVLNode p)
-	 * 
-	 * @pre: node p
-	 * @post: whether or not all recursive children of p are linked to their real
-	 *        parents
-	 * @complexity: O(n)
-	 */
-	public boolean isValidHierarchy(IAVLNode p) {
-		if (p == null || (!p.isRealNode() && p.getLeft() == null && p.getRight() == null && p.getHeight() == -1)) {
-			return true;
-		}
-		if (p.getLeft().getParent() != p) {
-			return false;
-		}
-		if (p.getRight().getParent() != p) {
-			return false;
-		}
-		return isValidHierarchy(p.getLeft()) && isValidHierarchy(p.getRight());
-	}
-
-	/**
-	 * public boolean isValidBST(IAVLNode p)
-	 * 
-	 * @pre: node p
-	 * @post: forall x in recursive children of p, x.left.key <= x.key <=
-	 *        x.right.key
-	 * @complexity: O(n)
-	 */
-	public boolean isValidBST(IAVLNode p) {
-		if (p == null || (!p.isRealNode() && p.getLeft() == null && p.getRight() == null)) {
-			return true;
-		}
-		if (p.getLeft().isRealNode() && p.getLeft().getKey() > p.getKey()) {
-			return false;
-		}
-		if (p.getRight().isRealNode() && p.getRight().getKey() < p.getKey()) {
-			return false;
-		}
-		return isValidBST(p.getLeft()) && isValidBST(p.getRight());
-	}
-
-	/**
-	 * public boolean isValidRank(IAVLNode p)
-	 * 
-	 * @pre: node p
-	 * @post: balance factor is either -1, 0 or 1 for all subnodes
-	 * @complexity: O(n)
-	 */
-	public boolean isValidRank(IAVLNode p) {
-		if (p == null || (!p.isRealNode() && p.getLeft() == null && p.getRight() == null && p.getHeight() == -1)) {
-			return true;
-		}
-		int diffL, diffR;
-		diffL = p.getHeight() - p.getLeft().getHeight();
-		diffR = p.getHeight() - p.getRight().getHeight();
-		if ((diffL == 1 && diffR == 1) || (diffL == 1 && diffR == 2) || (diffL == 2 && diffR == 1)) {
-			return isValidRank(p.getLeft()) && isValidRank(p.getRight());
-		}
-		Logger.logd("Root is " + root.getValue());
-		Logger.logd("Ranks invalid - put breakpoint here");
-		return false;
-	}
-
-	/**
-	 * public boolean isValidAVL(IAVLNode p)
-	 * 
-	 * @pre: node p
-	 * @post: subtree of node p is a valid AVL tree
-	 * @complexity: O(n)
-	 */
-	public boolean isValidAVL(IAVLNode p) {
-		if (p==null) return true;
-		if (!isValidHierarchy(p)) {
-			return false;
-		}
-		if (!isValidBST(p)) {
-			return false;
-		}
-		if (!isValidRank(p)) {
-			return false;
-		}
-		if (Logger.FLAG_DEBUG) {
-			if (debugSize(p) != ((AVLNode) p).getSize()) {
-				Logger.logd("Debug size = " + String.valueOf(debugSize(p)));
-				Logger.logd("Actual size = " + String.valueOf(((AVLNode) p).getSize()));
-
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * public boolean isValidAVL()
-	 * 
-	 * @pre: none
-	 * @post: whether or not this is a valid AVL tree
-	 * @complexity: O(n)
-	 */
-	public boolean isValidAVL() {
-		return isValidAVL(root);
-	}
-
-	/**
-	 * public static boolean isValidAVL(IAVLNode p)
-	 * 
-	 * @pre: node p
-	 * @post: prints subtree of p inorder
-	 * @complexity: O(n)
-	 */
-	public static void printInOrder(IAVLNode p) {
-		if (p == null || (!p.isRealNode() && p.getLeft() == null && p.getRight() == null && p.getHeight() == -1)) {
-			return;
-		}
-		printInOrder(p.getLeft());
-		Logger.logd(p.getValue());
-		printInOrder(p.getRight());
-	}
-
-	/**
-	 * public static boolean isValidAVL()
-	 * 
-	 * @pre: none
-	 * @post: prints this tree inorder
-	 * @complexity: O(n)
-	 */
-	public void printInOrder() {
-		printInOrder(root);
-	}
-
-	/**
-	 * public AVLNode searchNode(int k)
-	 * 
-	 * @pre: key k of requested node
-	 * @post: requested node if exists, else null
-	 * @complexity: O(logn)
-	 */
-	public AVLNode searchNode(int k) {
-		if (empty())
-			return null;
-		AVLNode p = root;
-		while (p.isRealNode()) {
-			if (p.getKey() == k) {
-				return p;
-			} else if (p.getKey() < k) {
-				p = (AVLNode) p.getRight();
-			} else if (p.getKey() > k) {
-				p = (AVLNode) p.getLeft();
-			}
-		}
-		return p;
-	}
-
-
 	
-	private class BalanceResult {
-		AVLNode node;
-		int actionCount;
-		BalanceResult(AVLNode node, int actionCount) {
-			this.node = node;
-			this.actionCount = actionCount;
-		}
-	}
-
-	/**
-	 * private int leftLeftCase(AVLNode node)
-	 * 
-	 * Performs rotation for the left-left case
-	 * 
-	 * @complexity: O(1)
-	 */
-	private BalanceResult leftLeftCase(AVLNode node) {
-		// Logger.logd("leftLeftCase() - START");
-		node = (AVLNode) rotateRightAbout(node);
-		return new BalanceResult(node,1);
-	}
-
-	/**
-	 * private int leftRightCase(AVLNode node)
-	 * 
-	 * Performs rotation for the left-right case
-	 * 
-	 * @complexity: O(1)
-	 */
-	private BalanceResult leftRightCase(AVLNode node) {
-		// Logger.logd("leftRightCase() - START");
-		rotateLeftAbout(node.getLeft());
-		node = (AVLNode) rotateRightAbout(node);
-		return new BalanceResult(node,2);
-	}
-
-	/**
-	 * private int rightRightCase(AVLNode node)
-	 * 
-	 * Performs rotation for the right-right case
-	 * 
-	 * @complexity: O(1)
-	 */
-	private BalanceResult rightRightCase(AVLNode node) {
-		// Logger.logd("rightRightCase() - START");
-		node = (AVLNode) rotateLeftAbout(node);
-		return new BalanceResult(node,1);
-	}
-
-	/**
-	 * private int rightLeftCase(AVLNode node)
-	 * 
-	 * Performs rotation for the right-left case
-	 * 
-	 * @complexity: O(1)
-	 */
-	private BalanceResult rightLeftCase(AVLNode node) {
-		// Logger.logd("rightLeftCase() - START");
-		rotateRightAbout(node.getRight());
-		node = (AVLNode) rotateLeftAbout(node);
-		return new BalanceResult(node,2);
-	}
-
-	/**
-	 * private IAVLNode rotateRightAbout(IAVLNode node)
-	 * 
-	 * Performs clockwise rotation about specified node
-	 * 
-	 * @pre: child node of this.root
-	 * @complexity: O(1)
-	 */
-	public IAVLNode rotateRightAbout(IAVLNode node) {
-		Logger.assertd(node.isRealNode());
-		@SuppressWarnings("unused")
-		IAVLNode A, B, C, D, E;
-		IAVLNode nodeParent = node.getParent();
-
-		A = node;
-		B = A.getLeft();
-		C = A.getRight();
-		D = B.getLeft();
-		E = B.getRight();
-
-		A.setLeft(E);
-		B.setRight(A);
-
-		E.setParent(A);
-		A.setParent(B);
-
-		B.setParent(nodeParent);
-
-		Logger.assertd(nodeParent == null || nodeParent.isRealNode());
-		if (nodeParent == null) {
-			// A was root
-			root = (AVLNode) B;
-			// Logger.logd("Set root");
-		} else if (nodeParent.isRealNode()) {
-			// Logger.logd("lala");
-			Logger.assertd(A == nodeParent.getLeft() || A == nodeParent.getRight());
-			if (A == nodeParent.getLeft())
-				nodeParent.setLeft(B);
-			else
-				nodeParent.setRight(B);
-		}
-
-		((AVLNode) A).update();
-		((AVLNode) B).update();
-		// if (nodeParent != null) ((AVLNode)nodeParent).update();
-
-		return B;
-	}
-
-	/**
-	 * private IAVLNode rotateLeftAbout(IAVLNode node)
-	 * 
-	 * Performs counterclockwise rotation about specified node
-	 * 
-	 * @pre: child node of this.root
-	 * @complexity: O(1)
-	 */
-	public IAVLNode rotateLeftAbout(IAVLNode node) {
-		Logger.assertd(node.isRealNode());
-		@SuppressWarnings("unused")
-		IAVLNode A, B, C, D, E;
-		IAVLNode nodeParent = node.getParent();
-
-		B = node;
-		D = B.getLeft();
-		A = B.getRight();
-		E = A.getLeft();
-		C = A.getRight();
-
-		B.setRight(E);
-		A.setLeft(B);
-
-		E.setParent(B);
-		B.setParent(A);
-
-		A.setParent(nodeParent);
-
-		Logger.assertd(nodeParent == null || nodeParent.isRealNode());
-		if (nodeParent == null) {
-			// B was root
-			root = (AVLNode) A;
-		} else if (nodeParent.isRealNode()) {
-			Logger.assertd(B == nodeParent.getLeft() || B == nodeParent.getRight());
-			if (B == nodeParent.getLeft())
-				nodeParent.setLeft(A);
-			else
-				nodeParent.setRight(A);
-		}
-
-		((AVLNode) B).update();
-		((AVLNode) A).update();
-		// if (nodeParent != null) ((AVLNode)nodeParent).update();
-
-		return A;
-	}
-
-	/**
-	 * private int balance(IAVLNode node)
-	 * 
-	 * Performs balancing on specified node
-	 * 
-	 * @pre: child node of this.root
-	 * @post: number of balancing actions performed
-	 * @complexity: O(1)
-	 */
-	private int balance(AVLNode node) {
-		Logger.TOTAL_BALANCE += 1;
-		int bf = node.getBF();
-		// Logger.logd("BF of " + node.getValue() + " is " + String.valueOf(bf));
-		AVLNode left = (AVLNode) node.getLeft();
-		AVLNode right = (AVLNode) node.getRight();
-		Logger.assertd(-2 <= node.getBF() && node.getBF() <= 2);
-
-		BalanceResult balanceResult = null;
-		int countRotations = 0;
-
-		AVLNode newNode = null;
-
-		if (bf == -2) {
-			if (left.getBF() <= 0) {
-				balanceResult = leftLeftCase(node);
-				countRotations += balanceResult.actionCount;
-			} else {	
-				balanceResult = leftRightCase(node);
-				countRotations += balanceResult.actionCount;
-			}
-		} else if (bf == 2) {
-			if (right.getBF() >= 0) {
-				balanceResult = rightRightCase(node);
-				countRotations += balanceResult.actionCount;
-			} else {
-				balanceResult = rightLeftCase(node);
-				countRotations += balanceResult.actionCount;
-			}
-		}
-
-		if (countRotations > 0) {
-			// Logger.logd("Performed " + String.valueOf(countRotations) + " rotations for " +
-			// node.getValue());
-		}
-
-		if (balanceResult == null) {
-			balanceResult = new BalanceResult(node, 0);
-		}
-		lastBalanceResult = balanceResult;
-		return countRotations;
-	}
-
-	/**
-	 * public int fingerInsertion(int k, String i)
-	 * 
-	 * Performs finger insertion
-	 * 
-	 * Only used in Q1 for calculation - this is not the regular insert(int k,
-	 * String k) method
-	 * 
-	 * @pre: int k == key of new node
-	 * @pre: String k == value of new node
-	 * @post: distance between new node and biggest child of root
-	 * @complexity: O(k) where k is the distance between our key and maximum value
-	 */
-	public int fingerInsertion(int k, String i) {
-		if (root == null) {
-			root = new AVLNode(k, i);
-			return 0;
-		} else {
-			int costToLocate = 0;
-			AVLNode location = root.getMaxChild();
-			AVLNode node = new AVLNode(k, i);
-			while (location.getParent() != null && location.getParent().getKey() >= k) {
-				location = (AVLNode) location.getParent();
-				costToLocate++;
-			}
-			return costToLocate + fingerInsertionHelper(location, node);
-		}
-	}
-
-	/**
-	 * public int fingerInsertionHelper(AVLNode location, AVLNode node)
-	 * 
-	 * Recursive helper for fingerInsertion(int k, String i)
-	 * 
-	 * Only used in Q1 for calculation - this is not the regular insert() method
-	 * 
-	 * @pre: AVLNode location == starting location or insertion location
-	 * @pre: AVLNode node == new node to insert
-	 * @post: distance between location and final insertion location of node
-	 * @complexity: O(k) where k is the distance between our key and maximum value
-	 */
-	private int fingerInsertionHelper(AVLNode location, AVLNode node) {
-		if (!location.isRealNode())
-			return ERROR_CANNOT_INSERT;
-		int countOperations = 0;
-		if (node.getKey() < location.getKey()) {
-			// if (location.getLeft().)
-			if (!location.getLeft().isRealNode()) {
-				location.setLeft(node);
-			} else
-				countOperations += fingerInsertionHelper((AVLNode) location.getLeft(), node);
-		} else if (node.getKey() > location.getKey()) {
-			if (!location.getRight().isRealNode()) {
-				location.setRight(node);
-			} else
-				countOperations += fingerInsertionHelper((AVLNode) location.getRight(), node);
-		} else {
-			countOperations = ERROR_CANNOT_INSERT;
-		}
-		if (countOperations == ERROR_CANNOT_INSERT)
-			return ERROR_CANNOT_INSERT;
-		int oldHeight;
-		boolean hadToUpdateHeight = false;
-		if (countOperations != ERROR_CANNOT_INSERT) {
-			oldHeight = location.getHeight();
-			location.update();
-			if (oldHeight != location.getHeight())
-				hadToUpdateHeight = true;
-		}
-
-		int balanceOperations = balance(location);
-		if (balanceOperations == 0) {
-			if (hadToUpdateHeight) {
-				// countOperations += 1; // commented out because we calculate cost differently
-			} else {
-				// do nothing
-			}
-		} else if (balanceOperations > 0) {
-			// A promotion/rotation counts as one re-balance operation, double-rotation is
-			// counted as 2.
-			// countOperations += balanceOperations; // commented out because we calculate
-			// cost differently
-		}
-
-		return 1 + countOperations;
-	}
-
+	
 	/**
 	 * public int insert(int k, String i)
 	 *
@@ -550,61 +101,8 @@ public class AVLTree {
 		} else
 			return insertHelper(root, new AVLNode(k, i));
 	}
-
-	/**
-	 * private int insertHelper(AVLNode location, AVLNode node)
-	 * 
-	 * Recursive helper for insert(int k, String i)
-	 * 
-	 * @pre: AVLNode location == starting location or insertion location
-	 * @pre: AVLNode node == new node to insert
-	 * @post: rebalancing actions performed
-	 * @complexity: O(logn)
-	 */
-	private int insertHelper(AVLNode location, AVLNode node) {
-		if (!location.isRealNode())
-			return ERROR_CANNOT_INSERT;
-		int countOperations = 0;
-		if (node.getKey() < location.getKey()) {
-			if (!location.getLeft().isRealNode()) {
-				location.setLeft(node);
-			} else
-				countOperations += insertHelper((AVLNode) location.getLeft(), node);
-		} else if (node.getKey() > location.getKey()) {
-			if (!location.getRight().isRealNode()) {
-				location.setRight(node);
-			} else
-				countOperations += insertHelper((AVLNode) location.getRight(), node);
-		} else {
-			countOperations = ERROR_CANNOT_INSERT;
-		}
-		if (countOperations == ERROR_CANNOT_INSERT)
-			return ERROR_CANNOT_INSERT;
-		int oldHeight;
-		boolean hadToUpdateHeight = false;
-		if (countOperations != ERROR_CANNOT_INSERT) {
-			oldHeight = location.getHeight();
-			location.update();
-			if (oldHeight != location.getHeight())
-				hadToUpdateHeight = true;
-		}
-
-		int balanceOperations = balance(location);
-		if (balanceOperations == 0) {
-			if (hadToUpdateHeight) {
-				countOperations += 1;
-			} else {
-				// do nothing
-			}
-		} else if (balanceOperations > 0) {
-			// A promotion/rotation counts as one re-balance operation, double-rotation is
-			// counted as 2.
-			countOperations += balanceOperations;
-		}
-
-		return countOperations;
-	}
-
+	
+	
 	/**
 	 * public int delete(int k)
 	 *
@@ -624,128 +122,8 @@ public class AVLTree {
 			return ERROR_CANNOT_DELETE;
 		return deleteHelper(root, k);
 	}
-
-	/**
-	 * public int deleteHelper(AVLNode location, int k)
-	 *
-	 * Deletes an item with key k from the binary tree, if it is there. The tree
-	 * must remain valid, i.e. keep its invariants. Returns the number of
-	 * re-balancing operations, or 0 if no re-balancing operations were necessary. A
-	 * promotion/rotation counts as one re-balance operation, double-rotation is
-	 * counted as 2. Returns -1 if an item with key k was not found in the tree.
-	 * 
-	 * @pre: int k == key of node to delete
-	 * @pre: AVLNode location == starting location to perform search for node
-	 * @post: number of rebalancing actions performed so far
-	 * @complexity: O(logn)
-	 */
-	private int deleteHelper(AVLNode location, int k) {
-		if (!location.isRealNode())
-			return ERROR_CANNOT_DELETE;
-		int countOperations = 0;
-		int deleteResult;
-		if (k < location.getKey()) {
-			if (!location.getLeft().isRealNode()) {
-				return ERROR_CANNOT_DELETE;
-			} else {
-				deleteResult = deleteHelper((AVLNode) location.getLeft(), k);
-				if (deleteResult == ERROR_CANNOT_DELETE)
-					return ERROR_CANNOT_DELETE;
-				countOperations += deleteResult;
-			}
-		} else if (k > location.getKey()) {
-			if (!location.getRight().isRealNode()) {
-				return ERROR_CANNOT_DELETE;
-			} else {
-				deleteResult = deleteHelper((AVLNode) location.getRight(), k);
-				if (deleteResult == ERROR_CANNOT_DELETE)
-					return ERROR_CANNOT_DELETE;
-				countOperations += deleteResult;
-			}
-		} else {
-			// Logger.logd(String.format("k==location.getKey(): %d==%d", k, location.getKey()));
-			// this is our node
-			AVLNode parent = (AVLNode) location.getParent();
-			AVLNode successor = null;
-			if (!location.getLeft().isRealNode() && !location.getRight().isRealNode()) {
-				// leaf
-				location.becomeVirtual();
-				return 0;
-			} else if (!location.getLeft().isRealNode() || !location.getRight().isRealNode()) {
-				// only one child
-
-				if (location.getLeft().isRealNode()) {
-					// only left child
-					successor = (AVLNode) location.getLeft();
-					/* location.setLeft(null); */
-				} else if (location.getRight().isRealNode()) {
-					// only right child
-					successor = (AVLNode) location.getRight();
-					/* location.setRight(null); */
-				} else {
-					Logger.assertd(false); // this cannot happen
-				}
-
-				/*
-				 * if (location == (AVLNode)parent.getLeft()) parent.setLeft(successor); else if
-				 * (location == (AVLNode)parent.getRight()) parent.setRight(successor); else {
-				 * Logger.logd("Deformed tree, this is bad. Try to look ahead instead maybe");
-				 * Logger.assertd(false); } successor.setParent(parent); location.becomeVirtual();
-				 */
-				location.fullCopyFrom(successor); // FIXME - if this works, consider trying out the above
-			} else {
-				// two children
-
-				// we pick the smallest value in the right subtree
-				successor = (AVLNode) minNodeBelow(location.getRight());
-				location.partialCopyFrom(successor);
-				deleteResult = deleteHelper((AVLNode) location.getRight(), successor.getKey());
-				if (deleteResult == ERROR_CANNOT_DELETE)
-					Logger.assertd(false); // we're already midway removal
-				countOperations += deleteResult;
-			}
-		}
-
-		int oldHeight;
-		boolean hadToUpdateHeight = false;
-		if (countOperations != ERROR_CANNOT_DELETE) {
-			oldHeight = location.getHeight();
-			location.update();
-			if (oldHeight != location.getHeight())
-				hadToUpdateHeight = true;
-		}
-
-		int balanceOperations = balance(location);
-		if (balanceOperations == 0) {
-			if (hadToUpdateHeight) {
-				countOperations += 1;
-			} else {
-
-			}
-		} else if (balanceOperations > 0) {
-			// A promotion/rotation counts as one re-balance operation, double-rotation is
-			// counted as 2.
-			countOperations += balanceOperations;
-		}
-
-		return countOperations;
-	}
-
-	/**
-	 * private static IAVLNode minNodeBelow(IAVLNode p)
-	 *
-	 * Returns the info of the item with the smallest key below p, or p if
-	 * the left subtree is empty.
-	 * 
-	 * @complexity: O(1)
-	 */
-	private static IAVLNode minNodeBelow(IAVLNode p) {
-		if (p.getLeft() == null || !p.getLeft().isRealNode())
-			return p;
-		return ((AVLNode) p.getLeft()).getMinChild();
-
-	}
-
+	
+	
 	/**
 	 * public String min()
 	 *
@@ -759,7 +137,8 @@ public class AVLTree {
 			return null;
 		return this.root.getMinChild().getValue();
 	}
-
+	
+	
 	/**
 	 * public String max()
 	 *
@@ -773,50 +152,8 @@ public class AVLTree {
 			return null;
 		return this.root.getMaxChild().getValue();
 	}
-
-	/**
-	 * public AVLNode[] treeToArray()
-	 *
-	 * Returns a list of all the nodes in the tree, sorted by key, or null if the
-	 * tree is empty
-	 * 
-	 * This could've been done in O(1), by maintaining a list of nodes,
-	 * sorted by keys, and sorting while inserting.
-	 * Performing search during insertions would've been done in O(logn),
-	 * insertion into a the linked list would be O(1) after finding.
-	 * So total "damage" to insert and delete would've been O(logn), but since
-	 * insertion already costs O(logn), worst case would've stayed the same.
-	 * We don't care because amortized is the same -
-	 * an (insert^n, treeToArray) sequence takes the same amount of time.
-	 * 
-	 * @complexity: O(n)
-	 */
-	private AVLNode[] treeToArray() {
-		if (this.root == null) return new AVLNode[0];
-		AVLNode[] arr = new AVLNode[this.size()];
-		AVLNode[] stack_pending = new AVLNode[this.size()];
-		//Logger.logd(String.format("Debug size is %d", debugSize(this.root)));
-		AVLNode p = root;
-		int stack_pending_size = 0;
-		int arr_idx = 0;
-
-		while (stack_pending_size > 0 || p.isRealNode()) {
-			if (p.isRealNode()) {
-				stack_pending[stack_pending_size] = p;
-				stack_pending_size++;
-				p = (AVLNode) p.getLeft();
-			} else {
-				p = stack_pending[stack_pending_size - 1];
-				stack_pending_size--;
-				arr[arr_idx] = p;
-				arr_idx++;
-				p = (AVLNode) p.getRight();
-			}
-		}
-
-		return arr;
-	}
-
+	
+	
 	/**
 	 * public int[] keysToArray()
 	 *
@@ -828,7 +165,7 @@ public class AVLTree {
 	public int[] keysToArray() {
 		AVLNode nodes[] = this.treeToArray();
 		if (nodes == null)
-			return new int[0]; // FIXME empty array?
+			return new int[0];
 
 		int keys[] = new int[nodes.length];
 		for (int i = 0; i < nodes.length; i++)
@@ -836,6 +173,7 @@ public class AVLTree {
 		return keys;
 	}
 
+	
 	/**
 	 * public String[] infoToArray()
 	 *
@@ -847,7 +185,7 @@ public class AVLTree {
 	public String[] infoToArray() {
 		AVLNode nodes[] = this.treeToArray();
 		if (nodes == null)
-			return null; // FIXME empty array?
+			return new String[0];
 
 		String info[] = new String[nodes.length];
 		for (int i = 0; i < nodes.length; i++)
@@ -855,6 +193,7 @@ public class AVLTree {
 		return info;
 	}
 
+	
 	/**
 	 * public int size()
 	 *
@@ -867,33 +206,8 @@ public class AVLTree {
 			return 0;
 		return this.root.getSize();
 	}
-
-	/**
-	 * public int debugSize(IAVLNode p)
-	 *
-	 * ONLY USED IN DEBUGGING
-	 *
-	 * Returns the number of nodes in the tree -
-	 * different implementation
-	 * 
-	 * @complexity: O(n)
-	 */
-	public int debugSize(IAVLNode p) {
-		if (p==null) return 0;
-		int sum = 0;
-		int sumLeft, sumRight;
-		if (!p.isRealNode()) {
-			return 0;
-		} else {
-			sum += 1;
-			sumLeft = debugSize(p.getLeft());
-			Logger.assertd((!p.getLeft().isRealNode())||((AVLNode)p.getLeft()).getSize()==sumLeft);
-			sumRight = debugSize(p.getRight());
-			Logger.assertd((!p.getRight().isRealNode())||((AVLNode)p.getRight()).getSize()==sumRight);
-			return 1+sumLeft+sumRight;
-		}
-	}
-
+	
+	
 	/**
 	 * public IAVLNode getRoot()
 	 *
@@ -906,21 +220,8 @@ public class AVLTree {
 			return null; // redundant but yeah
 		return this.root;
 	}
-
-	/**
-	 * public AVLTree clone()
-	 * 
-	 * Returns a full clone of the current tree
-	 * 
-	 * @complexity: O(n)
-	 */
-	@Override
-	public AVLTree clone() {
-		AVLTree t = new AVLTree();
-		t.root = this.root.deepClone();
-		return t;
-	}
-
+	
+	
 	/**
 	 * public AVLTree[] split(int x)
 	 *
@@ -956,6 +257,152 @@ public class AVLTree {
 		//this.joinCostTotal = pJoinCostTotal.x;
 		return trees;
 	}
+	
+	
+	/**
+	 * public int join(IAVLNode x, AVLTree t)
+	 *
+	 * joins t and x with the tree. Returns the complexity of the operation
+	 * (|tree.rank - t.rank| + 1).
+	 *
+	 * precondition: keys(t) < x < keys() or keys(t) > x > keys(). t/tree might be
+	 * empty (rank = -1). postcondition: none
+	 * 
+	 * @post: AVLTree t is destroyed in the process (you said postcondition is none)
+	 * @complexity: O(|rank1-rank2|+1) = O(logn)
+	 */
+	public int join(IAVLNode x, AVLTree t) {
+		Logger.TOTAL_JOINS += 1;
+		Logger.assertd(!x.getLeft().isRealNode() && !x.getRight().isRealNode());
+		if (this.empty() && t.empty()) {
+			Logger.logd("Edge case #1");
+			this.root = (AVLNode) x;
+			return 1;
+		} else if (this.empty()) {
+			Logger.logd("Edge case #2");
+			t.insert(x.getKey(), x.getValue());
+			this.root = (AVLNode) t.getRoot();
+			return 2+this.root.getHeight();
+		} else if (t.empty()) {
+			Logger.logd("Edge case #3");
+			this.insert(x.getKey(), x.getValue());
+			return 2+this.root.getHeight();
+		}
+		//Logger.logd("No edge case");
+		
+		//IAVLNode oldParentT = t.getRoot().getParent();
+		
+		AVLTree T1 = null, T2 = null;
+		AVLNode p1 = null, p2 = null;
+		AVLNode par = null;//, p = null;
+		int rank1, rank2;
+		if (this.getRoot().getKey() < x.getKey() && x.getKey() < t.getRoot().getKey()) {
+			T1 = this;
+			T2 = t;
+		} else if (t.getRoot().getKey() < x.getKey() && x.getKey() < this.getRoot().getKey()) {
+			T1 = t;
+			T2 = this;
+		} else {
+			Logger.assertd(false);
+		}
+		
+		p1 = (AVLNode) T1.getRoot();
+		p2 = (AVLNode) T2.getRoot();
+
+		rank1 = p1.getHeight();
+		rank2 = p2.getHeight();
+		
+		
+		if (rank1 == rank2) {
+			x.setLeft(p1);
+			x.setRight(p2);
+			this.root = (AVLNode) x;
+			return 1; // and no need to balance
+		}
+		else if (rank1 < rank2) {
+			while (p2.getHeight() > rank1) {
+				if (p2.getLeft().isRealNode()) {
+					p2 = (AVLNode) p2.getLeft();
+				} else {
+					Logger.assertd(p2.getHeight() == 1 + rank1);
+					// because otherwise p.getHeight() >= 2+rank1
+					// since rank1 >= 0, this means p.getHeight() >= 2
+					// so p.getRight().getHeight() >= 1
+					// and since p.getLeft().getHeight() == -1
+					// this gives us BF=2
+
+					Logger.assertd(rank1 == 0);
+					// BF == (1+rank1-1)-(-1)=1+rank1 <= 1
+					// 0<=rank1, 1+rank1<=1
+
+					p2 = (AVLNode) p2.getRight();
+					
+					Logger.assertd(rank1 == p2.getHeight());
+					break;
+				}
+			}
+
+			par = (AVLNode) p2.getParent();
+			if (p2 == par.getLeft()) {
+				x.setLeft(p1);
+				x.setRight(p2);
+				balance((AVLNode)x);
+				x = lastBalanceResult.node;
+				par.setLeft(x);
+			} else {
+				Logger.assertd(rank1 == 0);
+				x.setLeft(p1);
+				balance((AVLNode)x);
+				x = lastBalanceResult.node;
+				par.setLeft(x);
+			}
+			//newRootBeforeRebalance =  T2.root;
+		} else if (rank2 < rank1) {
+			while (p1.getHeight() > rank2) {
+				if (p1.getRight().isRealNode()) {
+					p1 = (AVLNode) p1.getRight();
+				} else {
+					Logger.assertd(p1.getHeight() == 1 + rank2);
+					Logger.assertd(rank2 == 0);
+					p1 = (AVLNode) p1.getLeft();
+					Logger.assertd(rank2 == p1.getHeight());
+					break;
+				}
+			}
+
+			par = (AVLNode) p1.getParent();
+			if (p1 == par.getRight()) {
+				x.setLeft(p1);
+				x.setRight(p2);
+				balance((AVLNode)x);
+				x = lastBalanceResult.node;
+				par.setRight(x);
+			} else {
+				Logger.assertd(rank2 == 0);
+				x.setRight(p2);
+				balance((AVLNode)x);
+				x = lastBalanceResult.node;
+				par.setRight(x);
+			}
+			//newRootBeforeRebalance = T1.root;
+		}
+		
+		//AVLNode parPar;
+		
+		// the following does not hurt O(|rank1-rank2|+1) complexity
+		// we're strictly climbing up
+		while (par != null) {
+			((AVLNode)par).update();
+			balance((AVLNode) par);
+			par = lastBalanceResult.node;
+			if (par.getParent() == null) this.root = par;
+			par = (AVLNode) par.getParent();
+			//par = parPar;
+		}
+
+		return Math.abs(rank1 - rank2) + 1;
+	}
+	
 	
 	/**
 	 * public AVLTree[] splitHelper(int x)
@@ -1016,152 +463,742 @@ public class AVLTree {
 		trees[1] = t2;
 		return trees;
 	}
+	
+	
+	/**
+	 * public boolean isValidAVL()
+	 * 
+	 * @pre: none
+	 * @post: whether or not this is a valid AVL tree (true if empty)
+	 * @complexity: O(n)
+	 */
+	public boolean isValidAVL() {
+		return isValidAVL(root);
+	}
+	
+	
+	/**
+	 * private AVLNode searchNode(int k)
+	 * 
+	 * @pre: key k of requested node
+	 * @post: requested node if exists, else null
+	 * @complexity: O(logn)
+	 */
+	private AVLNode searchNode(int k) {
+		if (empty())
+			return null;
+		AVLNode p = root;
+		while (p.isRealNode()) {
+			if (p.getKey() == k) {
+				return p;
+			} else if (p.getKey() < k) {
+				p = (AVLNode) p.getRight();
+			} else if (p.getKey() > k) {
+				p = (AVLNode) p.getLeft();
+			}
+		}
+		return p;
+	}
+	
+	
+	/**
+	 * private int insertHelper(AVLNode location, AVLNode node)
+	 * 
+	 * Recursive helper for insert(int k, String i)
+	 * 
+	 * @pre: AVLNode location == starting location or insertion location
+	 * @pre: AVLNode node == new node to insert
+	 * @post: rebalancing actions performed
+	 * @complexity: O(logn)
+	 */
+	private int insertHelper(AVLNode location, AVLNode node) {
+		if (!location.isRealNode())
+			return ERROR_CANNOT_INSERT;
+		int countOperations = 0;
+		if (node.getKey() < location.getKey()) {
+			if (!location.getLeft().isRealNode()) {
+				location.setLeft(node);
+			} else
+				countOperations += insertHelper((AVLNode) location.getLeft(), node);
+		} else if (node.getKey() > location.getKey()) {
+			if (!location.getRight().isRealNode()) {
+				location.setRight(node);
+			} else
+				countOperations += insertHelper((AVLNode) location.getRight(), node);
+		} else {
+			countOperations = ERROR_CANNOT_INSERT;
+		}
+		if (countOperations == ERROR_CANNOT_INSERT)
+			return ERROR_CANNOT_INSERT;
+		int oldHeight;
+		boolean hadToUpdateHeight = false;
+		if (countOperations != ERROR_CANNOT_INSERT) {
+			oldHeight = location.getHeight();
+			location.update();
+			if (oldHeight != location.getHeight())
+				hadToUpdateHeight = true;
+		}
+
+		int balanceOperations = balance(location);
+		if (balanceOperations == 0) {
+			if (hadToUpdateHeight) {
+				countOperations += 1;
+			} else {
+				// do nothing
+			}
+		} else if (balanceOperations > 0) {
+			// A promotion/rotation counts as one re-balance operation, double-rotation is
+			// counted as 2.
+			countOperations += balanceOperations;
+		}
+
+		return countOperations;
+	}
+
 
 	/**
-	 * public int join(IAVLNode x, AVLTree t)
+	 * public int deleteHelper(AVLNode location, int k)
 	 *
-	 * joins t and x with the tree. Returns the complexity of the operation
-	 * (|tree.rank - t.rank| + 1).
-	 *
-	 * precondition: keys(t) < x < keys() or keys(t) > x > keys(). t/tree might be
-	 * empty (rank = -1). postcondition: none
+	 * Deletes an item with key k from the binary tree, if it is there. The tree
+	 * must remain valid, i.e. keep its invariants. Returns the number of
+	 * re-balancing operations, or 0 if no re-balancing operations were necessary. A
+	 * promotion/rotation counts as one re-balance operation, double-rotation is
+	 * counted as 2. Returns -1 if an item with key k was not found in the tree.
 	 * 
-	 * @post: AVLTree t is destroyed in the process (you said postcondition is none)
-	 * @complexity: O(|rank1-rank2|+1) = O(logn)
+	 * @pre: int k == key of node to delete
+	 * @pre: AVLNode location == starting location to perform search for node
+	 * @post: number of rebalancing actions performed so far
+	 * @complexity: O(logn)
 	 */
-	public int join(IAVLNode x, AVLTree t) {
-		Logger.TOTAL_JOINS += 1;
-		Logger.assertd(!x.getLeft().isRealNode() && !x.getRight().isRealNode());
-		if (this.empty() && t.empty()) {
-			Logger.logd("Edge case #1");
-			this.root = (AVLNode) x;
-			return 1;
-		} else if (this.empty()) {
-			Logger.logd("Edge case #2");
-			t.insert(x.getKey(), x.getValue());
-			this.root = (AVLNode) t.getRoot();
-			return 2+this.root.getHeight();
-		} else if (t.empty()) {
-			Logger.logd("Edge case #3");
-			this.insert(x.getKey(), x.getValue());
-			return 2+this.root.getHeight();
-		}
-		//Logger.logd("No edge case");
-		
-		IAVLNode oldParentT = t.getRoot().getParent();
-		
-		AVLTree T1 = null, T2 = null;
-		AVLNode p1 = null, p2 = null;
-		AVLNode p = null, par = null;
-		int rank1, rank2;
-		if (this.getRoot().getKey() < x.getKey() && x.getKey() < t.getRoot().getKey()) {
-			T1 = this;
-			T2 = t;
-		} else if (t.getRoot().getKey() < x.getKey() && x.getKey() < this.getRoot().getKey()) {
-			T1 = t;
-			T2 = this;
+	private int deleteHelper(AVLNode location, int k) {
+		if (!location.isRealNode())
+			return ERROR_CANNOT_DELETE;
+		int countOperations = 0;
+		int deleteResult;
+		if (k < location.getKey()) {
+			if (!location.getLeft().isRealNode()) {
+				return ERROR_CANNOT_DELETE;
+			} else {
+				deleteResult = deleteHelper((AVLNode) location.getLeft(), k);
+				if (deleteResult == ERROR_CANNOT_DELETE)
+					return ERROR_CANNOT_DELETE;
+				countOperations += deleteResult;
+			}
+		} else if (k > location.getKey()) {
+			if (!location.getRight().isRealNode()) {
+				return ERROR_CANNOT_DELETE;
+			} else {
+				deleteResult = deleteHelper((AVLNode) location.getRight(), k);
+				if (deleteResult == ERROR_CANNOT_DELETE)
+					return ERROR_CANNOT_DELETE;
+				countOperations += deleteResult;
+			}
 		} else {
-			Logger.assertd(false);
-		}
-		
-		p1 = (AVLNode) T1.getRoot();
-		p2 = (AVLNode) T2.getRoot();
+			// Logger.logd(String.format("k==location.getKey(): %d==%d", k, location.getKey()));
+			// this is our node
+			//AVLNode parent = (AVLNode) location.getParent();
+			AVLNode successor = null;
+			if (!location.getLeft().isRealNode() && !location.getRight().isRealNode()) {
+				// leaf
+				location.becomeVirtual();
+				return 0;
+			} else if (!location.getLeft().isRealNode() || !location.getRight().isRealNode()) {
+				// only one child
 
-		rank1 = p1.getHeight();
-		rank2 = p2.getHeight();
-		
-		AVLNode newRootBeforeRebalance = null;
-		
-		if (rank1 == rank2) {
-			x.setLeft(p1);
-			x.setRight(p2);
-			this.root = (AVLNode) x;
-			return 1; // and no need to balance
-		}
-		else if (rank1 < rank2) {
-			while (p2.getHeight() > rank1) {
-				if (p2.getLeft().isRealNode()) {
-					p2 = (AVLNode) p2.getLeft();
+				if (location.getLeft().isRealNode()) {
+					// only left child
+					successor = (AVLNode) location.getLeft();
+					/* location.setLeft(null); */
+				} else if (location.getRight().isRealNode()) {
+					// only right child
+					successor = (AVLNode) location.getRight();
+					/* location.setRight(null); */
 				} else {
-					Logger.assertd(p2.getHeight() == 1 + rank1);
-					// because otherwise p.getHeight() >= 2+rank1
-					// since rank1 >= 0, this means p.getHeight() >= 2
-					// so p.getRight().getHeight() >= 1
-					// and since p.getLeft().getHeight() == -1
-					// this gives us BF=2
-
-					Logger.assertd(rank1 == 0);
-					// BF == (1+rank1-1)-(-1)=1+rank1 <= 1
-					// 0<=rank1, 1+rank1<=1
-
-					p2 = (AVLNode) p2.getRight();
-					
-					Logger.assertd(rank1 == p2.getHeight());
-					break;
+					Logger.assertd(false); // this cannot happen
 				}
-			}
 
-			par = (AVLNode) p2.getParent();
-			if (p2 == par.getLeft()) {
-				x.setLeft(p1);
-				x.setRight(p2);
-				balance((AVLNode)x);
-				x = lastBalanceResult.node;
-				par.setLeft(x);
+				/*
+				 * if (location == (AVLNode)parent.getLeft()) parent.setLeft(successor); else if
+				 * (location == (AVLNode)parent.getRight()) parent.setRight(successor); else {
+				 * Logger.logd("Deformed tree, this is bad. Try to look ahead instead maybe");
+				 * Logger.assertd(false); } successor.setParent(parent); location.becomeVirtual();
+				 */
+				location.fullCopyFrom(successor); // if this works, consider trying out the above
 			} else {
-				Logger.assertd(rank1 == 0);
-				x.setLeft(p1);
-				balance((AVLNode)x);
-				x = lastBalanceResult.node;
-				par.setLeft(x);
-			}
-			newRootBeforeRebalance =  T2.root;
-		} else if (rank2 < rank1) {
-			while (p1.getHeight() > rank2) {
-				if (p1.getRight().isRealNode()) {
-					p1 = (AVLNode) p1.getRight();
-				} else {
-					Logger.assertd(p1.getHeight() == 1 + rank2);
-					Logger.assertd(rank2 == 0);
-					p1 = (AVLNode) p1.getLeft();
-					Logger.assertd(rank2 == p1.getHeight());
-					break;
-				}
-			}
+				// two children
 
-			par = (AVLNode) p1.getParent();
-			if (p1 == par.getRight()) {
-				x.setLeft(p1);
-				x.setRight(p2);
-				balance((AVLNode)x);
-				x = lastBalanceResult.node;
-				par.setRight(x);
-			} else {
-				Logger.assertd(rank2 == 0);
-				x.setRight(p2);
-				balance((AVLNode)x);
-				x = lastBalanceResult.node;
-				par.setRight(x);
+				// we pick the smallest value in the right subtree
+				successor = (AVLNode) minNodeBelow(location.getRight());
+				location.partialCopyFrom(successor);
+				deleteResult = deleteHelper((AVLNode) location.getRight(), successor.getKey());
+				if (deleteResult == ERROR_CANNOT_DELETE)
+					Logger.assertd(false); // we're already midway removal
+				countOperations += deleteResult;
 			}
-			newRootBeforeRebalance = T1.root;
-		}
-		
-		AVLNode parPar;
-		
-		// the following does not hurt O(|rank1-rank2|+1) complexity
-		// we're strictly climbing up
-		while (par != null) {
-			parPar = (AVLNode) par.getParent();
-			((AVLNode)par).update();
-			balance((AVLNode) par);
-			par = lastBalanceResult.node;
-			if (par.getParent() == null) this.root = par;
-			par = (AVLNode) par.getParent();
-			//par = parPar;
 		}
 
-		return Math.abs(rank1 - rank2) + 1;
+		int oldHeight;
+		boolean hadToUpdateHeight = false;
+		if (countOperations != ERROR_CANNOT_DELETE) {
+			oldHeight = location.getHeight();
+			location.update();
+			if (oldHeight != location.getHeight())
+				hadToUpdateHeight = true;
+		}
+
+		int balanceOperations = balance(location);
+		if (balanceOperations == 0) {
+			if (hadToUpdateHeight) {
+				countOperations += 1;
+			} else {
+
+			}
+		} else if (balanceOperations > 0) {
+			// A promotion/rotation counts as one re-balance operation, double-rotation is
+			// counted as 2.
+			countOperations += balanceOperations;
+		}
+
+		return countOperations;
 	}
+	
+
+	/**
+	 * private boolean isValidHierarchy(IAVLNode p)
+	 * 
+	 * @pre: node p
+	 * @post: whether or not all recursive children of p are linked to their real
+	 *        parents
+	 * @complexity: O(n)
+	 */
+	private boolean isValidHierarchy(IAVLNode p) {
+		if (p == null || (!p.isRealNode() && p.getLeft() == null && p.getRight() == null && p.getHeight() == -1)) {
+			return true;
+		}
+		if (p.getLeft().getParent() != p) {
+			return false;
+		}
+		if (p.getRight().getParent() != p) {
+			return false;
+		}
+		return isValidHierarchy(p.getLeft()) && isValidHierarchy(p.getRight());
+	}
+
+	
+	/**
+	 * public boolean isValidBST(IAVLNode p)
+	 * 
+	 * @pre: node p
+	 * @post: forall x in recursive children of p, x.left.key <= x.key <=
+	 *        x.right.key
+	 * @complexity: O(n)
+	 */
+	private boolean isValidBST(IAVLNode p) {
+		if (p == null || (!p.isRealNode() && p.getLeft() == null && p.getRight() == null)) {
+			return true;
+		}
+		if (p.getLeft().isRealNode() && p.getLeft().getKey() > p.getKey()) {
+			return false;
+		}
+		if (p.getRight().isRealNode() && p.getRight().getKey() < p.getKey()) {
+			return false;
+		}
+		return isValidBST(p.getLeft()) && isValidBST(p.getRight());
+	}
+
+	
+	/**
+	 * public boolean isValidRank(IAVLNode p)
+	 * 
+	 * @pre: node p
+	 * @post: balance factor is either -1, 0 or 1 for all subnodes
+	 * @complexity: O(n)
+	 */
+	private boolean isValidRank(IAVLNode p) {
+		if (p == null || (!p.isRealNode() && p.getLeft() == null && p.getRight() == null && p.getHeight() == -1)) {
+			return true;
+		}
+		int diffL, diffR;
+		diffL = p.getHeight() - p.getLeft().getHeight();
+		diffR = p.getHeight() - p.getRight().getHeight();
+		if ((diffL == 1 && diffR == 1) || (diffL == 1 && diffR == 2) || (diffL == 2 && diffR == 1)) {
+			return isValidRank(p.getLeft()) && isValidRank(p.getRight());
+		}
+		Logger.logd("Root is " + root.getValue());
+		Logger.logd("Ranks invalid - put breakpoint here");
+		return false;
+	}
+
+	
+	/**
+	 * private boolean isValidAVL(IAVLNode p)
+	 * 
+	 * @pre: node p
+	 * @post: subtree of node p is a valid AVL tree
+	 * @complexity: O(n)
+	 */
+	private boolean isValidAVL(IAVLNode p) {
+		if (p==null) return true;
+		if (!isValidHierarchy(p)) {
+			return false;
+		}
+		if (!isValidBST(p)) {
+			return false;
+		}
+		if (!isValidRank(p)) {
+			return false;
+		}
+		if (Logger.FLAG_DEBUG) {
+			if (debugSize(p) != ((AVLNode) p).getSize()) {
+				Logger.logd("Debug size = " + String.valueOf(debugSize(p)));
+				Logger.logd("Actual size = " + String.valueOf(((AVLNode) p).getSize()));
+
+				return false;
+			}
+		}
+		return true;
+	}
+
+	
+	/**
+	 * public static void printInOrder(IAVLNode p)
+	 * 
+	 * @pre: node p
+	 * @post: prints subtree of p inorder
+	 * @complexity: O(n)
+	 */
+	private static void printInOrder(IAVLNode p) {
+		if (p == null || (!p.isRealNode() && p.getLeft() == null && p.getRight() == null && p.getHeight() == -1)) {
+			return;
+		}
+		printInOrder(p.getLeft());
+		Logger.logd(p.getValue());
+		printInOrder(p.getRight());
+	}
+
+	
+	/**
+	 * public static boolean printInOrder()
+	 * 
+	 * @pre: none
+	 * @post: prints this tree inorder
+	 * @complexity: O(n)
+	 */
+	public void printInOrder() {
+		printInOrder(root);
+	}
+
+	
+	private class BalanceResult {
+		AVLNode node;
+		int actionCount;
+		BalanceResult(AVLNode node, int actionCount) {
+			this.node = node;
+			this.actionCount = actionCount;
+		}
+	}
+
+	
+	/**
+	 * private int leftLeftCase(AVLNode node)
+	 * 
+	 * Performs rotation for the left-left case
+	 * 
+	 * @complexity: O(1)
+	 */
+	private BalanceResult leftLeftCase(AVLNode node) {
+		// Logger.logd("leftLeftCase() - START");
+		node = (AVLNode) rotateRightAbout(node);
+		return new BalanceResult(node,1);
+	}
+
+	
+	/**
+	 * private int leftRightCase(AVLNode node)
+	 * 
+	 * Performs rotation for the left-right case
+	 * 
+	 * @complexity: O(1)
+	 */
+	private BalanceResult leftRightCase(AVLNode node) {
+		// Logger.logd("leftRightCase() - START");
+		rotateLeftAbout(node.getLeft());
+		node = (AVLNode) rotateRightAbout(node);
+		return new BalanceResult(node,2);
+	}
+
+	
+	/**
+	 * private int rightRightCase(AVLNode node)
+	 * 
+	 * Performs rotation for the right-right case
+	 * 
+	 * @complexity: O(1)
+	 */
+	private BalanceResult rightRightCase(AVLNode node) {
+		// Logger.logd("rightRightCase() - START");
+		node = (AVLNode) rotateLeftAbout(node);
+		return new BalanceResult(node,1);
+	}
+
+	
+	/**
+	 * private int rightLeftCase(AVLNode node)
+	 * 
+	 * Performs rotation for the right-left case
+	 * 
+	 * @complexity: O(1)
+	 */
+	private BalanceResult rightLeftCase(AVLNode node) {
+		// Logger.logd("rightLeftCase() - START");
+		rotateRightAbout(node.getRight());
+		node = (AVLNode) rotateLeftAbout(node);
+		return new BalanceResult(node,2);
+	}
+
+	
+	/**
+	 * private IAVLNode rotateRightAbout(IAVLNode node)
+	 * 
+	 * Performs clockwise rotation about specified node
+	 * 
+	 * @pre: child node of this.root
+	 * @complexity: O(1)
+	 */
+	public IAVLNode rotateRightAbout(IAVLNode node) {
+		Logger.assertd(node.isRealNode());
+		@SuppressWarnings("unused")
+		IAVLNode A, B, C, D, E;
+		IAVLNode nodeParent = node.getParent();
+
+		A = node;
+		B = A.getLeft();
+		C = A.getRight();
+		D = B.getLeft();
+		E = B.getRight();
+
+		A.setLeft(E);
+		B.setRight(A);
+
+		E.setParent(A);
+		A.setParent(B);
+
+		B.setParent(nodeParent);
+
+		Logger.assertd(nodeParent == null || nodeParent.isRealNode());
+		if (nodeParent == null) {
+			// A was root
+			root = (AVLNode) B;
+			// Logger.logd("Set root");
+		} else if (nodeParent.isRealNode()) {
+			// Logger.logd("lala");
+			Logger.assertd(A == nodeParent.getLeft() || A == nodeParent.getRight());
+			if (A == nodeParent.getLeft())
+				nodeParent.setLeft(B);
+			else
+				nodeParent.setRight(B);
+		}
+
+		((AVLNode) A).update();
+		((AVLNode) B).update();
+		// if (nodeParent != null) ((AVLNode)nodeParent).update();
+
+		return B;
+	}
+
+	
+	/**
+	 * private IAVLNode rotateLeftAbout(IAVLNode node)
+	 * 
+	 * Performs counterclockwise rotation about specified node
+	 * 
+	 * @pre: child node of this.root
+	 * @complexity: O(1)
+	 */
+	public IAVLNode rotateLeftAbout(IAVLNode node) {
+		Logger.assertd(node.isRealNode());
+		@SuppressWarnings("unused")
+		IAVLNode A, B, C, D, E;
+		IAVLNode nodeParent = node.getParent();
+
+		B = node;
+		D = B.getLeft();
+		A = B.getRight();
+		E = A.getLeft();
+		C = A.getRight();
+
+		B.setRight(E);
+		A.setLeft(B);
+
+		E.setParent(B);
+		B.setParent(A);
+
+		A.setParent(nodeParent);
+
+		Logger.assertd(nodeParent == null || nodeParent.isRealNode());
+		if (nodeParent == null) {
+			// B was root
+			root = (AVLNode) A;
+		} else if (nodeParent.isRealNode()) {
+			Logger.assertd(B == nodeParent.getLeft() || B == nodeParent.getRight());
+			if (B == nodeParent.getLeft())
+				nodeParent.setLeft(A);
+			else
+				nodeParent.setRight(A);
+		}
+
+		((AVLNode) B).update();
+		((AVLNode) A).update();
+		// if (nodeParent != null) ((AVLNode)nodeParent).update();
+
+		return A;
+	}
+
+	
+	/**
+	 * private int balance(IAVLNode node)
+	 * 
+	 * Performs balancing on specified node
+	 * 
+	 * @pre: child node of this.root
+	 * @post: number of balancing actions performed
+	 * @complexity: O(1)
+	 */
+	private int balance(AVLNode node) {
+		Logger.TOTAL_BALANCE += 1;
+		int bf = node.getBF();
+		// Logger.logd("BF of " + node.getValue() + " is " + String.valueOf(bf));
+		AVLNode left = (AVLNode) node.getLeft();
+		AVLNode right = (AVLNode) node.getRight();
+		Logger.assertd(-2 <= node.getBF() && node.getBF() <= 2);
+
+		BalanceResult balanceResult = null;
+		int countRotations = 0;
+
+		if (bf == -2) {
+			if (left.getBF() <= 0) {
+				balanceResult = leftLeftCase(node);
+				countRotations += balanceResult.actionCount;
+			} else {	
+				balanceResult = leftRightCase(node);
+				countRotations += balanceResult.actionCount;
+			}
+		} else if (bf == 2) {
+			if (right.getBF() >= 0) {
+				balanceResult = rightRightCase(node);
+				countRotations += balanceResult.actionCount;
+			} else {
+				balanceResult = rightLeftCase(node);
+				countRotations += balanceResult.actionCount;
+			}
+		}
+
+		if (countRotations > 0) {
+			// Logger.logd("Performed " + String.valueOf(countRotations) + " rotations for " +
+			// node.getValue());
+		}
+
+		if (balanceResult == null) {
+			balanceResult = new BalanceResult(node, 0);
+		}
+		lastBalanceResult = balanceResult;
+		return countRotations;
+	}
+
+	
+	/**
+	 * public int fingerInsertion(int k, String i)
+	 * 
+	 * Performs finger insertion
+	 * 
+	 * Only used in Q1 for calculation - this is not the regular insert(int k,
+	 * String k) method
+	 * 
+	 * @pre: int k == key of new node
+	 * @pre: String k == value of new node
+	 * @post: distance between new node and biggest child of root
+	 * @complexity: O(k) where k is the distance between our key and maximum value
+	 */
+	public int fingerInsertion(int k, String i) {
+		if (root == null) {
+			root = new AVLNode(k, i);
+			return 0;
+		} else {
+			int costToLocate = 0;
+			AVLNode location = root.getMaxChild();
+			AVLNode node = new AVLNode(k, i);
+			while (location.getParent() != null && location.getParent().getKey() >= k) {
+				location = (AVLNode) location.getParent();
+				costToLocate++;
+			}
+			return costToLocate + fingerInsertionHelper(location, node);
+		}
+	}
+
+	
+	/**
+	 * public int fingerInsertionHelper(AVLNode location, AVLNode node)
+	 * 
+	 * Recursive helper for fingerInsertion(int k, String i)
+	 * 
+	 * Only used in Q1 for calculation - this is not the regular insert() method
+	 * 
+	 * @pre: AVLNode location == starting location or insertion location
+	 * @pre: AVLNode node == new node to insert
+	 * @post: distance between location and final insertion location of node
+	 * @complexity: O(k) where k is the distance between our key and maximum value
+	 */
+	private int fingerInsertionHelper(AVLNode location, AVLNode node) {
+		if (!location.isRealNode())
+			return ERROR_CANNOT_INSERT;
+		int countOperations = 0;
+		if (node.getKey() < location.getKey()) {
+			// if (location.getLeft().)
+			if (!location.getLeft().isRealNode()) {
+				location.setLeft(node);
+			} else
+				countOperations += fingerInsertionHelper((AVLNode) location.getLeft(), node);
+		} else if (node.getKey() > location.getKey()) {
+			if (!location.getRight().isRealNode()) {
+				location.setRight(node);
+			} else
+				countOperations += fingerInsertionHelper((AVLNode) location.getRight(), node);
+		} else {
+			countOperations = ERROR_CANNOT_INSERT;
+		}
+		if (countOperations == ERROR_CANNOT_INSERT)
+			return ERROR_CANNOT_INSERT;
+		int oldHeight;
+		boolean hadToUpdateHeight = false;
+		if (countOperations != ERROR_CANNOT_INSERT) {
+			oldHeight = location.getHeight();
+			location.update();
+			if (oldHeight != location.getHeight())
+				hadToUpdateHeight = true;
+		}
+
+		int balanceOperations = balance(location);
+		if (balanceOperations == 0) {
+			if (hadToUpdateHeight) {
+				// countOperations += 1; // commented out because we calculate cost differently
+			} else {
+				// do nothing
+			}
+		} else if (balanceOperations > 0) {
+			// A promotion/rotation counts as one re-balance operation, double-rotation is
+			// counted as 2.
+			// countOperations += balanceOperations; // commented out because we calculate
+			// cost differently
+		}
+
+		return 1 + countOperations;
+	}
+
+
+	/**
+	 * private static IAVLNode minNodeBelow(IAVLNode p)
+	 *
+	 * Returns the info of the item with the smallest key below p, or p if
+	 * the left subtree is empty.
+	 * 
+	 * @complexity: O(1)
+	 */
+	private static IAVLNode minNodeBelow(IAVLNode p) {
+		if (p.getLeft() == null || !p.getLeft().isRealNode())
+			return p;
+		return ((AVLNode) p.getLeft()).getMinChild();
+
+	}
+
+
+	/**
+	 * public AVLNode[] treeToArray()
+	 *
+	 * Returns a list of all the nodes in the tree, sorted by key, or null if the
+	 * tree is empty
+	 * 
+	 * This could've been done in O(1), by maintaining a list of nodes,
+	 * sorted by keys, and sorting while inserting.
+	 * Performing search during insertions would've been done in O(logn),
+	 * insertion into a the linked list would be O(1) after finding.
+	 * So total "damage" to insert and delete would've been O(logn), but since
+	 * insertion already costs O(logn), worst case would've stayed the same.
+	 * We don't care because amortized is the same -
+	 * an (insert^n, treeToArray) sequence takes the same amount of time.
+	 * 
+	 * @complexity: O(n)
+	 */
+	private AVLNode[] treeToArray() {
+		if (this.root == null) return new AVLNode[0];
+		AVLNode[] arr = new AVLNode[this.size()];
+		AVLNode[] stack_pending = new AVLNode[this.size()];
+		//Logger.logd(String.format("Debug size is %d", debugSize(this.root)));
+		AVLNode p = root;
+		int stack_pending_size = 0;
+		int arr_idx = 0;
+
+		while (stack_pending_size > 0 || p.isRealNode()) {
+			if (p.isRealNode()) {
+				stack_pending[stack_pending_size] = p;
+				stack_pending_size++;
+				p = (AVLNode) p.getLeft();
+			} else {
+				p = stack_pending[stack_pending_size - 1];
+				stack_pending_size--;
+				arr[arr_idx] = p;
+				arr_idx++;
+				p = (AVLNode) p.getRight();
+			}
+		}
+
+		return arr;
+	}
+
+	
+
+	/**
+	 * public int debugSize(IAVLNode p)
+	 *
+	 * ONLY USED IN DEBUGGING
+	 *
+	 * Returns the number of nodes in the tree -
+	 * different implementation
+	 * 
+	 * @complexity: O(n)
+	 */
+	public int debugSize(IAVLNode p) {
+		if (p==null) return 0;
+		int sumLeft, sumRight;
+		if (!p.isRealNode()) {
+			return 0;
+		} else {
+			sumLeft = debugSize(p.getLeft());
+			Logger.assertd((!p.getLeft().isRealNode())||((AVLNode)p.getLeft()).getSize()==sumLeft);
+			sumRight = debugSize(p.getRight());
+			Logger.assertd((!p.getRight().isRealNode())||((AVLNode)p.getRight()).getSize()==sumRight);
+			return 1+sumLeft+sumRight;
+		}
+	}
+
+
+
+	/**
+	 * public AVLTree clone()
+	 * 
+	 * ONLY USED IN DEBUGGING
+	 * 
+	 * Returns a full clone of the current tree
+	 * 
+	 * @complexity: O(n)
+	 */
+	@Override
+	public AVLTree clone() {
+		AVLTree t = new AVLTree();
+		t.root = this.root.deepClone();
+		return t;
+	}
+
+	
 
 	/**
 	 * public interface IAVLNode ! Do not delete or modify this - otherwise all

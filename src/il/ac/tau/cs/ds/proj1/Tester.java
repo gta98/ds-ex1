@@ -2,7 +2,6 @@ package il.ac.tau.cs.ds.proj1;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;

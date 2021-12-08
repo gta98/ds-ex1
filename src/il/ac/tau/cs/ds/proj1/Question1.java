@@ -2,7 +2,6 @@ package il.ac.tau.cs.ds.proj1;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -51,7 +50,6 @@ public class Question1 {
 				costRan += treeRandom[i].insert(insertionsRan.get(k), null);
 			}
 			
-			int h;
 			System.out.println(String.format("Dec: n=%d,h=%d,costDec=%d", treeMax, hDec,costDec));
 			System.out.println(String.format("Ran: n=%d,h=%d,costRan=%d", treeMax, hRan,costRan));
 		}
