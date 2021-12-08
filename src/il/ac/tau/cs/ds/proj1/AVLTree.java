@@ -19,7 +19,6 @@ public class AVLTree {
 								ERROR_CANNOT_DELETE = -1;
 	
 	AVLNode root = null;
-	int nodeCount = 0;
 	
 	public int joinCostTotal, joinCostCurrent, joinCount;
 	public int joinCostMax;
@@ -33,19 +32,16 @@ public class AVLTree {
 	 */
 	public AVLTree() {
 		this.root = null;
-		this.nodeCount = 0;
 	}
 	
 	/**
-	 * public AVLTree(AVLNode root, int nodeCount)
+	 * public AVLTree(AVLNode root)
 	 * 
 	 * @pre: root=valid AVL subtree root
-	 * @pre: nodeCount which matches root children count + 1
 	 * @post: new AVLTree with specified root as root
 	 */
-	public AVLTree(AVLNode root, int nodeCount) {
+	public AVLTree(AVLNode root) {
 		this.root = root;
-		this.nodeCount = nodeCount;
 	}
 	
 	/**
@@ -357,7 +353,6 @@ public class AVLTree {
 	public int fingerInsertion(int k, String i) {
 		if (root == null) {
 			root = new AVLNode(k, i);
-			nodeCount++;
 			return 0;
 		} else {
 			int costToLocate = 0;
@@ -377,13 +372,11 @@ public class AVLTree {
 		if        (node.getKey() < location.getKey()) {
 			//if (location.getLeft().)
 			if (!location.getLeft().isRealNode()) {
-				nodeCount++;
 				location.setLeft(node);
 			}
 			else countOperations += fingerInsertionHelper((AVLNode)location.getLeft(), node);
 		} else if (node.getKey() > location.getKey()) {
 			if (!location.getRight().isRealNode()) {
-				nodeCount++;
 				location.setRight(node);
 			}
 			else countOperations += fingerInsertionHelper((AVLNode)location.getRight(), node);
@@ -419,13 +412,11 @@ public class AVLTree {
 		int countOperations = 0;
 		if        (node.getKey() < location.getKey()) {
 			if (!location.getLeft().isRealNode()) {
-				nodeCount++;
 				location.setLeft(node);
 			}
 			else countOperations += insertHelper((AVLNode)location.getLeft(), node);
 		} else if (node.getKey() > location.getKey()) {
 			if (!location.getRight().isRealNode()) {
-				nodeCount++;
 				location.setRight(node);
 			}
 			else countOperations += insertHelper((AVLNode)location.getRight(), node);
@@ -468,7 +459,6 @@ public class AVLTree {
 	public int insert(int k, String i) {
 		if (root == null) {
 			root = new AVLNode(k, i);
-			nodeCount++;
 			return 0;
 		} else return insertHelper(root, new AVLNode(k, i));
 	}
@@ -503,7 +493,6 @@ public class AVLTree {
 			if (!location.getLeft().isRealNode() && !location.getRight().isRealNode()) {
 				// leaf
 				location.becomeVirtual();
-				nodeCount--;
 				return 0;
 			} else if (!location.getLeft().isRealNode() || !location.getRight().isRealNode()) {
 				// only one child
@@ -529,7 +518,6 @@ public class AVLTree {
 				successor.setParent(parent);
 				location.becomeVirtual();*/
 				location.fullCopyFrom(successor); // FIXME - if this works, consider trying out the above
-				nodeCount--;
 			} else {
 				// two children
 				
@@ -539,8 +527,6 @@ public class AVLTree {
 				deleteResult = deleteHelper((AVLNode)location.getRight(), successor.getKey());
 				if (deleteResult == ERROR_CANNOT_DELETE) assertd(false); // we're already midway removal
 				countOperations += deleteResult;
-				// we don't call nodeCount--
-				// recursive call must do this for us
 			}
 		}
 		
@@ -719,7 +705,6 @@ public class AVLTree {
 	public AVLTree clone() {
 		AVLTree t = new AVLTree();
 		t.root = this.root.deepClone();
-		t.nodeCount = this.nodeCount;
 		return t;
 	}
 	
@@ -958,14 +943,12 @@ public class AVLTree {
 		if (this.empty() && t.empty()) {
 			logd("Scenario 1");
 			this.root = (AVLNode) x;
-			this.nodeCount = 1;
 			return 1;
 		} else if (this.empty()) {
 			logd("Scenario 2");
 			complexity = 2+t.getRoot().getHeight();
 			t.insert(x.getKey(), x.getValue());
 			this.root = (AVLNode) t.getRoot();
-			this.nodeCount = t.size();
 			return complexity;
 		} else if (t.empty()) {
 			logd("Scenario 3");
@@ -1048,7 +1031,6 @@ public class AVLTree {
 			newRoot = (AVLNode) newRoot.getParent();
 		}
 		root = newRoot;
-		this.nodeCount = newCount;
 		assert(this.isValidAVL());
 		return complexity;
 	}
@@ -1279,14 +1261,12 @@ public class AVLTree {
 			AVLTree t = new AVLTree();
 			t.root = this.deepClone();
 			t.root.parent = null;
-			t.nodeCount = this.size;
 			return t;
 		}
 		
 		public AVLTree toTreeClone() {
 			AVLTree t = new AVLTree();
 			t.root = this.deepClone();
-			t.nodeCount = this.size;
 			return t;
 		}
 		
