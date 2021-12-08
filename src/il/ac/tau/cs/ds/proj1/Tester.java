@@ -7,10 +7,11 @@ import java.util.List;
 import java.util.Random;
 
 import il.ac.tau.cs.ds.proj1.AVLTree;
+import il.ac.tau.cs.ds.proj1.AVLTree.AVLNode;
 
 public class Tester {
 	
-	public static final long SEED = 697650;
+	public static final long SEED = 1976550;
 
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
@@ -23,16 +24,12 @@ public class Tester {
 		
 		//q1.test();
 		//q2.test();
-		
-		//randomActions2();
-		//Question2 q2 = new Question2(SEED);
-		test();
+
+		//test();
 		randomActions();
 		
 		System.out.println(String.format("Final statistics:\n\tASSERTION_TRIGGERS=%d\n\tTOTAL_INSERTIONS=%d\n\tTOTAL_DELETIONS=%d\n\tTOTAL_SPLITS=%d\n\tTOTAL_JOINS=%d\n\tTOTAL_BALANCE=%d", Logger.ASSERTION_TRIGGERS, Logger.TOTAL_INSERTIONS, Logger.TOTAL_DELETIONS, Logger.TOTAL_SPLITS, Logger.TOTAL_JOINS, Logger.TOTAL_BALANCE));
 		assert(Logger.ASSERTION_TRIGGERS == 0);
-		
-		/// INSERT TESTING HERE ///
 	}
 
 	
@@ -190,7 +187,7 @@ public class Tester {
 		randomJoinTrees(SEED,100);
 		
 		AVLTree t = new AVLTree();
-		AVLSequence seq = new AVLSequence(SEED, 6);
+		AVLSequence seq = new AVLSequence(SEED, 1886);
 		seq.perform(t);
 
 		
@@ -218,6 +215,7 @@ public class Tester {
 			int[] keys = tree.keysToArray();
 			//deleteRandomOrder(tree, keys, seed*2);
 			assert(tree.isValidAVL());
+			AVLTree treeCopy = tree.clone();
 			
 			AVLTree[] splits = tree.split(keySplit);
 			for (int i=0; i<splits.length; i++) {
@@ -225,6 +223,16 @@ public class Tester {
 				assert(splits[i].isValidAVL());
 			}
 			assert(splits[0].size()+splits[1].size()+1 == tree.size());
+			
+			AVLTree rejoiced = splits[0];
+			int key = ((AVLNode)splits[1].getRoot()).getMinChild().getKey()-1;
+			splits[1].delete(key);
+			rejoiced.join(rejoiced.new AVLNode(key, null), splits[1]);
+			int[] alicia = rejoiced.keysToArray();
+			Logger.assertd(alicia.length == keys.length);
+			for (int i=0; i<alicia.length; i++) {
+				Logger.assertd(alicia[i]==keys[i]);
+			}
 		}
 	}
 	
