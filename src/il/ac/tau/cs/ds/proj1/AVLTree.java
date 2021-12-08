@@ -10,8 +10,8 @@ package il.ac.tau.cs.ds.proj1;
 
 public class AVLTree {
 
-	private static final boolean FLAG_DEBUG = true;// true;
-	private static final boolean FLAG_VERBOSE = true;
+	private static final boolean FLAG_DEBUG   = true;
+	private static final boolean FLAG_VERBOSE = false;
 
 	private static final int ERROR_CANNOT_INSERT = -1, ERROR_CANNOT_DELETE = -1;
 
@@ -180,6 +180,8 @@ public class AVLTree {
 	 *
 	 * Returns true if and only if the tree is empty.
 	 * 
+	 * @pre: none
+	 * @post: is empty?
 	 * @complexity: O(1)
 	 */
 	public boolean empty() {
@@ -215,6 +217,8 @@ public class AVLTree {
 	 * Returns the info of an item with key k if it exists in the tree. otherwise,
 	 * returns null.
 	 * 
+	 * @pre: int k = key
+	 * @post: string k = value of node if exists, else null
 	 * @complexity: O(logn)
 	 */
 	public String search(int k) {

@@ -11,7 +11,7 @@ import il.ac.tau.cs.ds.proj1.AVLTree;
 
 public class Tester {
 	
-	public static final long SEED = 6617690;
+	public static final long SEED = 690;
 
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
