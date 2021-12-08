@@ -11,7 +11,7 @@ import il.ac.tau.cs.ds.proj1.AVLTree;
 
 public class Tester {
 	
-	public static final long SEED = 4206969;
+	public static final long SEED = 6617690;
 
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
@@ -20,14 +20,18 @@ public class Tester {
 		System.out.println("Hello World!");
 		
 		//Question1 q1 = new Question1(SEED); // maybe add randomized parameters here
-		Question2 q2 = new Question2(SEED);
+		//Question2 q2 = new Question2(SEED);
 		
 		//q1.test();
 		//q2.test();
 		
-		randomActions2();
+		//randomActions2();
 		//Question2 q2 = new Question2(SEED);
-		test();
+		//test();
+		randomActions();
+		
+		System.out.println(String.format("Final error count: %d", ErrorReporter.ASSERTION_TRIGGERS));
+		assert(ErrorReporter.ASSERTION_TRIGGERS == 0);
 		
 		/// INSERT TESTING HERE ///
 	}
@@ -181,32 +185,9 @@ public class Tester {
 	public static void randomActions() {
 		System.out.println("randomActions() - START");
 		//insertSpecificList();
-		AVLTree[] trees = insertRandomStress(17,17);
-		AVLTree tree = trees[0];
-		int[] keys = tree.keysToArray();
-		//deleteRandomOrder(tree, keys, SEED*2);
-		System.out.println(String.format("We have %d keys", keys.length));
-		System.out.println(String.format("Is AVL: %d", tree.isValidAVL()?1:0));
-		
-		AVLTree[] splits = tree.split(6);
-		for (int i=0; i<splits.length; i++) {
-			int[] mKeys = splits[i].keysToArray();
-			System.out.println(String.format("IN SPLIT #%d we have %d keys", i+1, mKeys.length));
-			System.out.println(String.format("Is AVL: %d", splits[i].isValidAVL()?1:0));
-		}
-		assert(splits[0].size()+splits[1].size()+1 == tree.size());
-		
-		AVLTree t1 = new AVLTree();
-		AVLTree t2 = new AVLTree();
-		insertRandomly(t1, 10, 6, SEED);
-		insertRandomly(t2, 50, 33, SEED);
-		AVLTree.AVLNode x = t1.AVLNodeGenerator(14, "14");
-		t1.join(x, t2);
-		
-		keys = t1.keysToArray();
-		System.out.println(String.format("in joined We have %d keys", keys.length));
-		System.out.println(String.format("Is AVL: %d", tree.isValidAVL()?1:0));
-		
+		randomSplitTest(SEED);
+
+		//randomJoinTrees(SEED,100);
 		
 		/*AVLTree t = new AVLTree();
 		AVLSequence seq = new AVLSequence(SEED, 6);
@@ -224,6 +205,48 @@ public class Tester {
 		System.out.println(String.format("Is AVL: %d", (tree.isValidAVL()?1:0)));*/
 		//OOPTest();
 		System.out.println("randomActions() - END");
+	}
+	
+	public static void randomSplitTest(long seed) {
+		AVLTree[] trees = insertRandomStress(17,17);
+		AVLTree tree = trees[0];
+		int[] keys = tree.keysToArray();
+		//deleteRandomOrder(tree, keys, seed*2);
+		System.out.println(String.format("We have %d keys", keys.length));
+		System.out.println(String.format("Is AVL: %d", tree.isValidAVL()?1:0));
+		
+		AVLTree[] splits = tree.split(6);
+		for (int i=0; i<splits.length; i++) {
+			int[] mKeys = splits[i].keysToArray();
+			System.out.println(String.format("IN SPLIT #%d we have %d keys", i+1, mKeys.length));
+			System.out.println(String.format("Is AVL: %d", splits[i].isValidAVL()?1:0));
+		}
+		assert(splits[0].size()+splits[1].size()+1 == tree.size());
+	}
+	
+	public static void randomJoinTrees(long seed, int testCount) {
+		Random rand = new Random(seed);
+		int[] keys;
+		for (int i=0; i<testCount; i++) {
+			int cutoff1 = rand.nextInt(1000)+5;
+			int cutoff2 = rand.nextInt(5000)+5;
+			cutoff2 += cutoff1 + 10;
+			
+			int len1 = 1+ cutoff1 - 2;
+			int len2 = 1+ cutoff2 - (cutoff1+4);
+			AVLTree t1 = new AVLTree();
+			AVLTree t2 = new AVLTree();
+			insertRandomly(t1, cutoff1, 2, SEED);
+			insertRandomly(t2, cutoff2, cutoff1+4, SEED);
+			AVLTree.AVLNode x = t1.new AVLNode(cutoff1+2, "separator");
+			t1.join(x, t2);
+			
+			keys = t1.keysToArray();
+			//System.out.println(String.format("in joined We have %d keys", keys.length));
+			assert(keys.length == t1.debugSize(t1.getRoot()));
+			assert(keys.length == len1+len2+1);
+			assert(t1.isValidAVL());
+		}
 	}
 	
 	
