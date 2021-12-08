@@ -43,6 +43,36 @@ public class AVLTree {
 	public AVLTree(AVLNode root) {
 		this.root = root;
 	}
+	
+	/**
+	 * public boolean empty()
+	 *
+	 * Returns true if and only if the tree is empty.
+	 * 
+	 * @pre: none
+	 * @post: is empty?
+	 * @complexity: O(1)
+	 */
+	public boolean empty() {
+		return root == null || !root.isRealNode();
+	}
+	
+	/**
+	 * public String search(int k)
+	 *
+	 * Returns the info of an item with key k if it exists in the tree. otherwise,
+	 * returns null.
+	 * 
+	 * @pre: int k = key
+	 * @post: string k = value of node if exists, else null
+	 * @complexity: O(logn)
+	 */
+	public String search(int k) {
+		AVLNode p = searchNode(k);
+		if (!p.isRealNode())
+			return null;
+		return p.getValue();
+	}
 
 	/**
 	 * public boolean isValidHierarchy(IAVLNode p)
@@ -176,19 +206,6 @@ public class AVLTree {
 	}
 
 	/**
-	 * public boolean empty()
-	 *
-	 * Returns true if and only if the tree is empty.
-	 * 
-	 * @pre: none
-	 * @post: is empty?
-	 * @complexity: O(1)
-	 */
-	public boolean empty() {
-		return root == null || !root.isRealNode();
-	}
-
-	/**
 	 * public AVLNode searchNode(int k)
 	 * 
 	 * @pre: key k of requested node
@@ -211,22 +228,7 @@ public class AVLTree {
 		return p;
 	}
 
-	/**
-	 * public String search(int k)
-	 *
-	 * Returns the info of an item with key k if it exists in the tree. otherwise,
-	 * returns null.
-	 * 
-	 * @pre: int k = key
-	 * @post: string k = value of node if exists, else null
-	 * @complexity: O(logn)
-	 */
-	public String search(int k) {
-		AVLNode p = searchNode(k);
-		if (!p.isRealNode())
-			return null;
-		return p.getValue();
-	}
+
 	
 	private class BalanceResult {
 		AVLNode node;
@@ -893,7 +895,7 @@ public class AVLTree {
 	}
 
 	/**
-	 * public int getRoot()
+	 * public IAVLNode getRoot()
 	 *
 	 * Returns the root AVL node, or null if the tree is empty
 	 * 
@@ -1167,25 +1169,15 @@ public class AVLTree {
 	 */
 	public interface IAVLNode {
 		public int getKey(); // Returns node's key (for virtual node return -1).
-
 		public String getValue(); // Returns node's value [info], for virtual node returns null.
-
 		public void setLeft(IAVLNode node); // Sets left child.
-
 		public IAVLNode getLeft(); // Returns left child, if there is no left child returns null.
-
 		public void setRight(IAVLNode node); // Sets right child.
-
 		public IAVLNode getRight(); // Returns right child, if there is no right child return null.
-
 		public void setParent(IAVLNode node); // Sets parent.
-
 		public IAVLNode getParent(); // Returns the parent, if there is no parent return null.
-
 		public boolean isRealNode(); // Returns True if this is a non-virtual AVL node.
-
 		public void setHeight(int height); // Sets the height of the node.
-
 		public int getHeight(); // Returns the height of the node (-1 for virtual nodes).
 	}
 
