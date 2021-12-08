@@ -186,9 +186,9 @@ public class Tester {
 		System.out.println("randomActions() - START");
 		//insertSpecificList();
 		problematicSplitTest1();
-		//randomSplitTest(SEED,200, 1000);
+		randomSplitTest(SEED,200, 1000);
 
-		//randomJoinTrees(SEED,100);
+		randomJoinTrees(SEED,100);
 		
 		AVLTree t = new AVLTree();
 		AVLSequence seq = new AVLSequence(SEED, 6);

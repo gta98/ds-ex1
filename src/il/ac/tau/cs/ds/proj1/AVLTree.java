@@ -1023,6 +1023,11 @@ public class AVLTree {
 	}
 	
 	public AVLTree[] splitWithClonedNodes2(int x) {
+		joinCostTotal = 0;
+		joinCostMax = 0;
+		joinCostCurrent = 0;
+		joinCount = 0;
+		
 		if (this.empty()) return null;
 		AVLTree t1 = new AVLTree();
 		AVLTree t2 = new AVLTree();
@@ -1040,18 +1045,24 @@ public class AVLTree {
 			if      (p.getKey() < x) {
 				fakeTree = ((AVLNode)p.getLeft()).toTree(); // O(1) - just pointer assignment in toTree()...
 				fakeTree.root.setParent(null); // a little duct tape yesh
-				t1.join(p.clone(), fakeTree);
+				joinCostCurrent = t1.join(p.clone(), fakeTree);
+				joinCount++;
 			}
 			else if (p.getKey() > x) {
 				fakeTree = ((AVLNode)p.getRight()).toTree(); // O(1) - just pointer assignment in toTree()...
 				fakeTree.root.setParent(null); // a little duct tape yesh
-				t2.join(p.clone(), fakeTree);
+				joinCostCurrent = t2.join(p.clone(), fakeTree);
+				joinCount++;
 				
 			} else {
 				assertd(false);
 			}
 			p = (AVLNode) p.getParent();
+			joinCostTotal += joinCostCurrent;
+			joinCostMax = Math.max(joinCostCurrent, joinCostMax);
 		}
+		
+		if (joinCount != 0) joinCostAvg = joinCostTotal / joinCount;
 		
 		AVLTree[] trees = new AVLTree[2];
 		trees[0] = t1;
@@ -1086,9 +1097,9 @@ public class AVLTree {
 			this.insert(x.getKey(), x.getValue());
 			return 2+this.root.getHeight();
 		}
+		//logd("No edge case");
 		
 		IAVLNode oldParentT = t.getRoot().getParent();
-		t.getRoot().setParent(null);
 		
 		AVLTree T1 = null, T2 = null;
 		AVLNode p1 = null, p2 = null;
