@@ -359,10 +359,19 @@ public class AVLTree {
 			root = new AVLNode(k, i);
 			nodeCount++;
 			return 0;
-		} else return fingerInsertionAssistant(root.getMaxChild(), new AVLNode(k, i));
+		} else {
+			int costToLocate = 0;
+			AVLNode location = root.getMaxChild();
+			AVLNode node = new AVLNode(k, i);
+			while (location.getParent() != null && location.getParent().getKey() >= k) {
+				location = (AVLNode) location.getParent();
+				costToLocate++;
+			}
+			return costToLocate + fingerInsertionHelper(location, node);
+		}
 	}
 	
-	private int fingerInsertionAssistant(AVLNode location, AVLNode node) {
+	private int fingerInsertionHelper(AVLNode location, AVLNode node) {
 		if (!location.isRealNode()) return ERROR_CANNOT_INSERT;
 		int countOperations = 0;
 		if        (node.getKey() < location.getKey()) {
@@ -371,13 +380,13 @@ public class AVLTree {
 				nodeCount++;
 				location.setLeft(node);
 			}
-			else countOperations += insertHelper((AVLNode)location.getLeft(), node);
+			else countOperations += fingerInsertionHelper((AVLNode)location.getLeft(), node);
 		} else if (node.getKey() > location.getKey()) {
 			if (!location.getRight().isRealNode()) {
 				nodeCount++;
 				location.setRight(node);
 			}
-			else countOperations += insertHelper((AVLNode)location.getRight(), node);
+			else countOperations += fingerInsertionHelper((AVLNode)location.getRight(), node);
 		} else {
 			countOperations = ERROR_CANNOT_INSERT;
 		}
@@ -393,16 +402,16 @@ public class AVLTree {
 		int balanceOperations = balance(location);
 		if (balanceOperations == 0) {
 			if (hadToUpdateHeight) {
-				countOperations += 1;
+				// countOperations += 1; // commented out because we calculate cost differently
 			} else {
 				// do nothing
 			}
 		} else if (balanceOperations > 0){
 			// A promotion/rotation counts as one re-balance operation, double-rotation is counted as 2.
-			countOperations += balanceOperations;
+			// countOperations += balanceOperations; // commented out because we calculate cost differently
 		}
 		
-		return countOperations;
+		return 1+countOperations;
 	}
 	
 	private int insertHelper(AVLNode location, AVLNode node) {
