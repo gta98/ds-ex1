@@ -128,8 +128,8 @@ public class AVLTree {
 		}
 		if (FLAG_DEBUG) {
 			if (debugSize(p) != ((AVLNode) p).getSize()) {
-				System.out.println("Debug size = " + String.valueOf(debugSize(p)));
-				System.out.println("Actual size = " + String.valueOf(((AVLNode) p).getSize()));
+				logd("Debug size = " + String.valueOf(debugSize(p)));
+				logd("Actual size = " + String.valueOf(((AVLNode) p).getSize()));
 
 				return false;
 			}

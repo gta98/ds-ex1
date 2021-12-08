@@ -90,7 +90,7 @@ public class Tester {
 			int keyIdx = 0;
 			while (keyIdx < insertions.size()) {
 				decision = rand.nextInt(10);
-				if (decision < 3 && inserted.size()-deleted.size()>0) {
+				if (decision < 3 && insertedNotDeleted.size()>0) {
 					deleteKey = rand.nextInt(insertedNotDeleted.size());
 					tasks.add(new AVLTask(AVLTaskType.DELETE, insertedNotDeleted.get(deleteKey)));
 					insertedNotDeleted.remove(deleteKey);
@@ -186,14 +186,13 @@ public class Tester {
 		System.out.println("randomActions() - START");
 		//insertSpecificList();
 		problematicSplitTest1();
-		randomSplitTest(SEED,100, 1000);
-		randomSplitTest(SEED,1000, 100);
+		//randomSplitTest(SEED,200, 1000);
 
-		randomJoinTrees(SEED,100);
+		//randomJoinTrees(SEED,100);
 		
-		/*AVLTree t = new AVLTree();
+		AVLTree t = new AVLTree();
 		AVLSequence seq = new AVLSequence(SEED, 6);
-		seq.perform(t);*/
+		seq.perform(t);
 
 		
 		/*tree.delete(3);
