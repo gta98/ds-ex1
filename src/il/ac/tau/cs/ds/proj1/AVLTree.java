@@ -10,9 +10,6 @@ package il.ac.tau.cs.ds.proj1;
 
 public class AVLTree {
 
-	private static final boolean FLAG_DEBUG   = true;
-	private static final boolean FLAG_VERBOSE = false;
-
 	private static final int ERROR_CANNOT_INSERT = -1, ERROR_CANNOT_DELETE = -1;
 
 	AVLNode root = null;
@@ -103,8 +100,8 @@ public class AVLTree {
 		if ((diffL == 1 && diffR == 1) || (diffL == 1 && diffR == 2) || (diffL == 2 && diffR == 1)) {
 			return isValidRank(p.getLeft()) && isValidRank(p.getRight());
 		}
-		logd("Root is " + root.getValue());
-		logd("Ranks invalid - put breakpoint here");
+		Logger.logd("Root is " + root.getValue());
+		Logger.logd("Ranks invalid - put breakpoint here");
 		return false;
 	}
 
@@ -126,10 +123,10 @@ public class AVLTree {
 		if (!isValidRank(p)) {
 			return false;
 		}
-		if (FLAG_DEBUG) {
+		if (Logger.FLAG_DEBUG) {
 			if (debugSize(p) != ((AVLNode) p).getSize()) {
-				logd("Debug size = " + String.valueOf(debugSize(p)));
-				logd("Actual size = " + String.valueOf(((AVLNode) p).getSize()));
+				Logger.logd("Debug size = " + String.valueOf(debugSize(p)));
+				Logger.logd("Actual size = " + String.valueOf(((AVLNode) p).getSize()));
 
 				return false;
 			}
@@ -160,7 +157,7 @@ public class AVLTree {
 			return;
 		}
 		printInOrder(p.getLeft());
-		logd(p.getValue());
+		Logger.logd(p.getValue());
 		printInOrder(p.getRight());
 	}
 
@@ -245,7 +242,7 @@ public class AVLTree {
 	 * @complexity: O(1)
 	 */
 	private BalanceResult leftLeftCase(AVLNode node) {
-		// logd("leftLeftCase() - START");
+		// Logger.logd("leftLeftCase() - START");
 		node = (AVLNode) rotateRightAbout(node);
 		return new BalanceResult(node,1);
 	}
@@ -258,7 +255,7 @@ public class AVLTree {
 	 * @complexity: O(1)
 	 */
 	private BalanceResult leftRightCase(AVLNode node) {
-		// logd("leftRightCase() - START");
+		// Logger.logd("leftRightCase() - START");
 		rotateLeftAbout(node.getLeft());
 		node = (AVLNode) rotateRightAbout(node);
 		return new BalanceResult(node,2);
@@ -272,7 +269,7 @@ public class AVLTree {
 	 * @complexity: O(1)
 	 */
 	private BalanceResult rightRightCase(AVLNode node) {
-		// logd("rightRightCase() - START");
+		// Logger.logd("rightRightCase() - START");
 		node = (AVLNode) rotateLeftAbout(node);
 		return new BalanceResult(node,1);
 	}
@@ -285,7 +282,7 @@ public class AVLTree {
 	 * @complexity: O(1)
 	 */
 	private BalanceResult rightLeftCase(AVLNode node) {
-		// logd("rightLeftCase() - START");
+		// Logger.logd("rightLeftCase() - START");
 		rotateRightAbout(node.getRight());
 		node = (AVLNode) rotateLeftAbout(node);
 		return new BalanceResult(node,2);
@@ -300,7 +297,7 @@ public class AVLTree {
 	 * @complexity: O(1)
 	 */
 	public IAVLNode rotateRightAbout(IAVLNode node) {
-		assertd(node.isRealNode());
+		Logger.assertd(node.isRealNode());
 		@SuppressWarnings("unused")
 		IAVLNode A, B, C, D, E;
 		IAVLNode nodeParent = node.getParent();
@@ -319,14 +316,14 @@ public class AVLTree {
 
 		B.setParent(nodeParent);
 
-		assertd(nodeParent == null || nodeParent.isRealNode());
+		Logger.assertd(nodeParent == null || nodeParent.isRealNode());
 		if (nodeParent == null) {
 			// A was root
 			root = (AVLNode) B;
-			// logd("Set root");
+			// Logger.logd("Set root");
 		} else if (nodeParent.isRealNode()) {
-			// logd("lala");
-			assertd(A == nodeParent.getLeft() || A == nodeParent.getRight());
+			// Logger.logd("lala");
+			Logger.assertd(A == nodeParent.getLeft() || A == nodeParent.getRight());
 			if (A == nodeParent.getLeft())
 				nodeParent.setLeft(B);
 			else
@@ -349,7 +346,7 @@ public class AVLTree {
 	 * @complexity: O(1)
 	 */
 	public IAVLNode rotateLeftAbout(IAVLNode node) {
-		assertd(node.isRealNode());
+		Logger.assertd(node.isRealNode());
 		@SuppressWarnings("unused")
 		IAVLNode A, B, C, D, E;
 		IAVLNode nodeParent = node.getParent();
@@ -368,12 +365,12 @@ public class AVLTree {
 
 		A.setParent(nodeParent);
 
-		assertd(nodeParent == null || nodeParent.isRealNode());
+		Logger.assertd(nodeParent == null || nodeParent.isRealNode());
 		if (nodeParent == null) {
 			// B was root
 			root = (AVLNode) A;
 		} else if (nodeParent.isRealNode()) {
-			assertd(B == nodeParent.getLeft() || B == nodeParent.getRight());
+			Logger.assertd(B == nodeParent.getLeft() || B == nodeParent.getRight());
 			if (B == nodeParent.getLeft())
 				nodeParent.setLeft(A);
 			else
@@ -397,11 +394,12 @@ public class AVLTree {
 	 * @complexity: O(1)
 	 */
 	private int balance(AVLNode node) {
+		Logger.TOTAL_BALANCE += 1;
 		int bf = node.getBF();
-		// logd("BF of " + node.getValue() + " is " + String.valueOf(bf));
+		// Logger.logd("BF of " + node.getValue() + " is " + String.valueOf(bf));
 		AVLNode left = (AVLNode) node.getLeft();
 		AVLNode right = (AVLNode) node.getRight();
-		assertd(-2 <= node.getBF() && node.getBF() <= 2);
+		Logger.assertd(-2 <= node.getBF() && node.getBF() <= 2);
 
 		BalanceResult balanceResult = null;
 		int countRotations = 0;
@@ -427,7 +425,7 @@ public class AVLTree {
 		}
 
 		if (countRotations > 0) {
-			// logd("Performed " + String.valueOf(countRotations) + " rotations for " +
+			// Logger.logd("Performed " + String.valueOf(countRotations) + " rotations for " +
 			// node.getValue());
 		}
 
@@ -540,6 +538,7 @@ public class AVLTree {
 	 * @complexity: O(logn)
 	 */
 	public int insert(int k, String i) {
+		Logger.TOTAL_INSERTIONS += 1;
 		if (root == null) {
 			root = new AVLNode(k, i);
 			return 0;
@@ -615,6 +614,7 @@ public class AVLTree {
 	 * @complexity: O(logn)
 	 */
 	public int delete(int k) {
+		Logger.TOTAL_DELETIONS += 1;
 		if (root == null)
 			return ERROR_CANNOT_DELETE;
 		return deleteHelper(root, k);
@@ -658,7 +658,7 @@ public class AVLTree {
 				countOperations += deleteResult;
 			}
 		} else {
-			// logd(String.format("k==location.getKey(): %d==%d", k, location.getKey()));
+			// Logger.logd(String.format("k==location.getKey(): %d==%d", k, location.getKey()));
 			// this is our node
 			AVLNode parent = (AVLNode) location.getParent();
 			AVLNode successor = null;
@@ -678,14 +678,14 @@ public class AVLTree {
 					successor = (AVLNode) location.getRight();
 					/* location.setRight(null); */
 				} else {
-					assertd(false); // this cannot happen
+					Logger.assertd(false); // this cannot happen
 				}
 
 				/*
 				 * if (location == (AVLNode)parent.getLeft()) parent.setLeft(successor); else if
 				 * (location == (AVLNode)parent.getRight()) parent.setRight(successor); else {
-				 * logd("Deformed tree, this is bad. Try to look ahead instead maybe");
-				 * assertd(false); } successor.setParent(parent); location.becomeVirtual();
+				 * Logger.logd("Deformed tree, this is bad. Try to look ahead instead maybe");
+				 * Logger.assertd(false); } successor.setParent(parent); location.becomeVirtual();
 				 */
 				location.fullCopyFrom(successor); // FIXME - if this works, consider trying out the above
 			} else {
@@ -696,7 +696,7 @@ public class AVLTree {
 				location.partialCopyFrom(successor);
 				deleteResult = deleteHelper((AVLNode) location.getRight(), successor.getKey());
 				if (deleteResult == ERROR_CANNOT_DELETE)
-					assertd(false); // we're already midway removal
+					Logger.assertd(false); // we're already midway removal
 				countOperations += deleteResult;
 			}
 		}
@@ -790,7 +790,7 @@ public class AVLTree {
 		if (this.root == null) return new AVLNode[0];
 		AVLNode[] arr = new AVLNode[this.size()];
 		AVLNode[] stack_pending = new AVLNode[this.size()];
-		//logd(String.format("Debug size is %d", debugSize(this.root)));
+		//Logger.logd(String.format("Debug size is %d", debugSize(this.root)));
 		AVLNode p = root;
 		int stack_pending_size = 0;
 		int arr_idx = 0;
@@ -882,9 +882,9 @@ public class AVLTree {
 		} else {
 			sum += 1;
 			sumLeft = debugSize(p.getLeft());
-			assertd((!p.getLeft().isRealNode())||((AVLNode)p.getLeft()).getSize()==sumLeft);
+			Logger.assertd((!p.getLeft().isRealNode())||((AVLNode)p.getLeft()).getSize()==sumLeft);
 			sumRight = debugSize(p.getRight());
-			assertd((!p.getRight().isRealNode())||((AVLNode)p.getRight()).getSize()==sumRight);
+			Logger.assertd((!p.getRight().isRealNode())||((AVLNode)p.getRight()).getSize()==sumRight);
 			return 1+sumLeft+sumRight;
 		}
 	}
@@ -930,6 +930,7 @@ public class AVLTree {
 	 * @complexity: O((logn)^2)
 	 */
 	public AVLTree[] split(int x) {
+		Logger.TOTAL_SPLITS += 1;
 		//AVLTree mClone = this.clone();
 		//PointerObject<Float> pJoinCostAvg = new PointerObject<>();
 		//PointerObject<Integer> pJoinCostMax = new PointerObject<>();
@@ -996,7 +997,7 @@ public class AVLTree {
 				joinCount++;
 				
 			} else {
-				assertd(false);
+				Logger.assertd(false);
 			}
 			p = (AVLNode) p.getParent();
 			joinCostTotal += joinCostCurrent;
@@ -1024,22 +1025,23 @@ public class AVLTree {
 	 * @complexity: O(|rank1-rank2|+1) = O(logn)
 	 */
 	public int join(IAVLNode x, AVLTree t) {
-		assertd(!x.getLeft().isRealNode() && !x.getRight().isRealNode());
+		Logger.TOTAL_JOINS += 1;
+		Logger.assertd(!x.getLeft().isRealNode() && !x.getRight().isRealNode());
 		if (this.empty() && t.empty()) {
-			logd("Edge case #1");
+			Logger.logd("Edge case #1");
 			this.root = (AVLNode) x;
 			return 1;
 		} else if (this.empty()) {
-			logd("Edge case #2");
+			Logger.logd("Edge case #2");
 			t.insert(x.getKey(), x.getValue());
 			this.root = (AVLNode) t.getRoot();
 			return 2+this.root.getHeight();
 		} else if (t.empty()) {
-			logd("Edge case #3");
+			Logger.logd("Edge case #3");
 			this.insert(x.getKey(), x.getValue());
 			return 2+this.root.getHeight();
 		}
-		//logd("No edge case");
+		//Logger.logd("No edge case");
 		
 		IAVLNode oldParentT = t.getRoot().getParent();
 		
@@ -1054,7 +1056,7 @@ public class AVLTree {
 			T1 = t;
 			T2 = this;
 		} else {
-			assertd(false);
+			Logger.assertd(false);
 		}
 		
 		p1 = (AVLNode) T1.getRoot();
@@ -1076,20 +1078,20 @@ public class AVLTree {
 				if (p2.getLeft().isRealNode()) {
 					p2 = (AVLNode) p2.getLeft();
 				} else {
-					assertd(p2.getHeight() == 1 + rank1);
+					Logger.assertd(p2.getHeight() == 1 + rank1);
 					// because otherwise p.getHeight() >= 2+rank1
 					// since rank1 >= 0, this means p.getHeight() >= 2
 					// so p.getRight().getHeight() >= 1
 					// and since p.getLeft().getHeight() == -1
 					// this gives us BF=2
 
-					assertd(rank1 == 0);
+					Logger.assertd(rank1 == 0);
 					// BF == (1+rank1-1)-(-1)=1+rank1 <= 1
 					// 0<=rank1, 1+rank1<=1
 
 					p2 = (AVLNode) p2.getRight();
 					
-					assertd(rank1 == p2.getHeight());
+					Logger.assertd(rank1 == p2.getHeight());
 					break;
 				}
 			}
@@ -1102,7 +1104,7 @@ public class AVLTree {
 				x = lastBalanceResult.node;
 				par.setLeft(x);
 			} else {
-				assertd(rank1 == 0);
+				Logger.assertd(rank1 == 0);
 				x.setLeft(p1);
 				balance((AVLNode)x);
 				x = lastBalanceResult.node;
@@ -1114,10 +1116,10 @@ public class AVLTree {
 				if (p1.getRight().isRealNode()) {
 					p1 = (AVLNode) p1.getRight();
 				} else {
-					assertd(p1.getHeight() == 1 + rank2);
-					assertd(rank2 == 0);
+					Logger.assertd(p1.getHeight() == 1 + rank2);
+					Logger.assertd(rank2 == 0);
 					p1 = (AVLNode) p1.getLeft();
-					assertd(rank2 == p1.getHeight());
+					Logger.assertd(rank2 == p1.getHeight());
 					break;
 				}
 			}
@@ -1130,7 +1132,7 @@ public class AVLTree {
 				x = lastBalanceResult.node;
 				par.setRight(x);
 			} else {
-				assertd(rank2 == 0);
+				Logger.assertd(rank2 == 0);
 				x.setRight(p2);
 				balance((AVLNode)x);
 				x = lastBalanceResult.node;
@@ -1295,8 +1297,8 @@ public class AVLTree {
 			try {
 				assertAVL();
 			} catch (Exception e) {
-				logd("Cannot setLeft() - exception thrown");
-				logd("Message: " + e.getMessage());
+				Logger.logd("Cannot setLeft() - exception thrown");
+				Logger.logd("Message: " + e.getMessage());
 				this.left = old;
 				return;
 			}
@@ -1311,7 +1313,7 @@ public class AVLTree {
 			try {
 				assertAVL();
 			} catch (Exception e) {
-				logd("Cannot setRight() - exception thrown");
+				Logger.logd("Cannot setRight() - exception thrown");
 				this.right = old;
 				return;
 			}
@@ -1325,7 +1327,7 @@ public class AVLTree {
 
 		// @complexity: O(1)
 		public void setHeight(int height) {
-			assertd(isRealNode());
+			Logger.assertd(isRealNode());
 			this.height = height;
 		}
 
@@ -1380,8 +1382,8 @@ public class AVLTree {
 			}
 
 			// bst
-			assertd(!(left.isRealNode() && left.getKey() > this.getKey()));
-			assertd(!(right.isRealNode() && right.getKey() < this.getKey()));
+			Logger.assertd(!(left.isRealNode() && left.getKey() > this.getKey()));
+			Logger.assertd(!(right.isRealNode() && right.getKey() < this.getKey()));
 		}
 
 		// @complexity: O(1)
@@ -1442,7 +1444,7 @@ public class AVLTree {
 
 		// @complexity: O(1)
 		public void becomeVirtual() {
-			assertd(!this.left.isRealNode() && !this.right.isRealNode());
+			Logger.assertd(!this.left.isRealNode() && !this.right.isRealNode());
 			this.left = null;
 			this.right = null;
 			// this.parent = (AVLNode) parent;
@@ -1469,10 +1471,25 @@ public class AVLTree {
 
 	}
 
+}
+
+// only used to pass results back from splitWithClonedNodes
+final class PointerObject<T> {
+	public T x;
+
+	public PointerObject() {
+	}
+}
+
+final class Logger {
+	private Logger() {}
+	public static final boolean FLAG_DEBUG   = true;
+	public static final boolean FLAG_VERBOSE = false;
+	
 	public static void assertd(boolean condition) {
 		if (FLAG_DEBUG) {
 			if (!condition) {
-				ErrorReporter.ASSERTION_TRIGGERS += 1;
+				Logger.ASSERTION_TRIGGERS += 1;
 				System.out.println("About to throw assertion");
 				assert (condition);
 			}
@@ -1484,17 +1501,10 @@ public class AVLTree {
 			System.out.println(s);
 	}
 	
-	// only used to pass results back from splitWithClonedNodes
-	private static class PointerObject<T> {
-		public T x;
-
-		public PointerObject() {
-		}
-	}
-
-}
-
-final class ErrorReporter {
-	private ErrorReporter() {}
-	public static int ASSERTION_TRIGGERS=0;
+	public static int ASSERTION_TRIGGERS  = 0;
+	public static int TOTAL_INSERTIONS    = 0;
+	public static int TOTAL_DELETIONS     = 0;
+	public static int TOTAL_SPLITS        = 0;
+	public static int TOTAL_JOINS         = 0;
+	public static int TOTAL_BALANCE       = 0;
 }
