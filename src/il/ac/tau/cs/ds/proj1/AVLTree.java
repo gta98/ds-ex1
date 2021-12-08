@@ -1006,11 +1006,59 @@ public class AVLTree {
 		// this.joinCostAvg = mClone.joinCostAvg;
 		// this.joinCostMax = mClone.joinCostMax;
 		// System.out.println("JoinCostMax="+String.valueOf(mClone.joinCostMax));
-		AVLTree[] trees = mClone.splitWithClonedNodes(x, pJoinCostMax, pJoinCostAvg, pJoinCount, pJoinCostTotal);
+		//AVLTree[] trees = mClone.splitWithClonedNodes(x, pJoinCostMax, pJoinCostAvg, pJoinCount, pJoinCostTotal);
+		AVLTree[] trees = mClone.splitWithClonedNodes2(x);
+		pJoinCostAvg.x = new Float(0);
+		pJoinCostMax.x = 0;
+		pJoinCount.x = 0;
+		pJoinCostTotal.x = 0;
 		this.joinCostAvg = pJoinCostAvg.x;
 		this.joinCostMax = pJoinCostMax.x;
 		this.joinCount = pJoinCount.x;
 		this.joinCostTotal = pJoinCostTotal.x;
+		return trees;
+	}
+	
+	public AVLTree[] splitWithClonedNodes2(int x) {
+		if (this.empty()) return null;
+		AVLTree t1 = new AVLTree();
+		AVLTree t2 = new AVLTree();
+		
+		AVLNode p = searchNode(x);
+		if (p.isRealNode()) {
+			t1.root = (AVLNode) p.getLeft();
+			t2.root = (AVLNode) p.getRight();
+		}
+		p = (AVLNode) p.getParent();
+		
+		// a little duct tape yeah just yeah thats how i like it
+		AVLTree fakeTree;
+		IAVLNode fakeTreeOldParent;
+		
+		while (p != null) {
+			if      (p.getKey() < x) {
+				fakeTree = ((AVLNode)p.getLeft()).toTree(); // O(1) - just pointer assignment in toTree()...
+				fakeTreeOldParent = fakeTree.root.getParent();
+				fakeTree.root.setParent(null);
+				t1.join(p.clone(), fakeTree);
+				fakeTree.root.setParent(fakeTreeOldParent);
+			}
+			else if (p.getKey() > x) {
+				fakeTree = ((AVLNode)p.getRight()).toTree(); // O(1) - just pointer assignment in toTree()...
+				fakeTreeOldParent = fakeTree.root.getParent();
+				fakeTree.root.setParent(null);
+				t2.join(p.clone(), fakeTree);
+				fakeTree.root.setParent(fakeTreeOldParent);
+				
+			} else {
+				assertd(false);
+			}
+			p = (AVLNode) p.getParent();
+		}
+		
+		AVLTree[] trees = new AVLTree[2];
+		trees[0] = t1;
+		trees[1] = t2;
 		return trees;
 	}
 
@@ -1062,7 +1110,7 @@ public class AVLTree {
 		rank1 = p1.getHeight();
 		rank2 = p2.getHeight();
 		
-		AVLNode newRootBeforeRebalance;
+		AVLNode newRootBeforeRebalance = null;
 		
 		if (rank1 == rank2) {
 			x.setLeft(p1);
