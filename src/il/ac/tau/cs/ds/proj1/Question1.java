@@ -31,7 +31,7 @@ public class Question1 {
 		}
 		
 		for (int i=1; i<=5; i++) {
-			int treeMax = 	000*((int)Math.pow(2, i));
+			int treeMax = 1000*((int)Math.pow(2, i));
 			List<Integer> insertionsDec, insertionsRan;
 			insertionsDec = new ArrayList<Integer>();
 			for (int k=treeMax-1; k>=0; k--) insertionsDec.add(k);
@@ -44,10 +44,10 @@ public class Question1 {
 			int hRan = countH(insertionsRan);
 			int hDec = countH(insertionsDec);
 			for (int k=0; k<insertionsDec.size(); k++) {
-				costDec += treeDecreasing[i].insert(treeMax-insertionsDec.get(k), null);
+				costDec += treeDecreasing[i].fingerInsertion(treeMax-insertionsDec.get(k), null);
 			}
 			for (int k=0; k<insertionsRan.size(); k++) {
-				costRan += treeRandom[i].insert(insertionsRan.get(k), null);
+				costRan += treeRandom[i].fingerInsertion(insertionsRan.get(k), null);
 			}
 			
 			System.out.println(String.format("Dec: n=%d,h=%d,costDec=%d", treeMax, hDec,costDec));
