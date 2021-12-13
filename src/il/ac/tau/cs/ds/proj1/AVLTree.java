@@ -237,24 +237,7 @@ public class AVLTree {
 	 */
 	public AVLTree[] split(int x) {
 		Logger.TOTAL_SPLITS += 1;
-		//AVLTree mClone = this.clone();
-		//PointerObject<Float> pJoinCostAvg = new PointerObject<>();
-		//PointerObject<Integer> pJoinCostMax = new PointerObject<>();
-		//PointerObject<Integer> pJoinCount = new PointerObject<>();
-		//PointerObject<Integer> pJoinCostTotal = new PointerObject<>();
-		// this.joinCostAvg = mClone.joinCostAvg;
-		// this.joinCostMax = mClone.joinCostMax;
-		// System.out.println("JoinCostMax="+String.valueOf(mClone.joinCostMax));
-		//AVLTree[] trees = mClone.splitWithClonedNodes(x, pJoinCostMax, pJoinCostAvg, pJoinCount, pJoinCostTotal);
 		AVLTree[] trees = this.splitHelper(x);
-		//pJoinCostAvg.x = new Float(0);
-		//pJoinCostMax.x = 0;
-		//pJoinCount.x = 0;
-		//pJoinCostTotal.x = 0;
-		//this.joinCostAvg = pJoinCostAvg.x;
-		//this.joinCostMax = pJoinCostMax.x;
-		//this.joinCount = pJoinCount.x;
-		//this.joinCostTotal = pJoinCostTotal.x;
 		return trees;
 	}
 	
@@ -1017,7 +1000,8 @@ public class AVLTree {
 	 * @pre: int k == key of new node
 	 * @pre: String k == value of new node
 	 * @post: distance between new node and biggest child of root
-	 * @complexity: O(k) where k is the distance between our key and maximum value
+	 * @cost: O(k) where k is the distance between our key and maximum value
+	 * @complexity: O(logn)
 	 */
 	public int fingerInsertion(int k, String i) {
 		if (root == null) {
@@ -1027,11 +1011,22 @@ public class AVLTree {
 			int costToLocate = 0;
 			AVLNode location = root.getMaxChild();
 			AVLNode node = new AVLNode(k, i);
+			AVLNode oldParent, oldParentParent;
+			BalanceResult balanceResult;
 			while (location.getParent() != null && location.getParent().getKey() >= k) {
 				location = (AVLNode) location.getParent();
 				costToLocate++;
 			}
-			return costToLocate + fingerInsertionHelper(location, node);
+			
+			oldParent = (AVLNode) location.getParent();
+			costToLocate += fingerInsertionHelper(location, node);
+			while (oldParent != null) {
+				oldParentParent = (AVLNode) oldParent.getParent();
+				oldParent.update();
+				balance(oldParent);
+				oldParent = oldParentParent;
+			}
+			return costToLocate;
 		}
 	}
 
@@ -1092,6 +1087,50 @@ public class AVLTree {
 		}
 
 		return 1 + countOperations;
+	}
+	
+	private int fingerInsertionHelper2(AVLNode location, AVLNode node) {
+		if (!location.isRealNode())
+			return ERROR_CANNOT_INSERT;
+		int countOperations = 0;
+		if (node.getKey() < location.getKey()) {
+			if (!location.getLeft().isRealNode()) {
+				location.setLeft(node);
+			} else
+				countOperations += fingerInsertionHelper2((AVLNode) location.getLeft(), node);
+		} else if (node.getKey() > location.getKey()) {
+			if (!location.getRight().isRealNode()) {
+				location.setRight(node);
+			} else
+				countOperations += fingerInsertionHelper2((AVLNode) location.getRight(), node);
+		} else {
+			countOperations = ERROR_CANNOT_INSERT;
+		}
+		if (countOperations == ERROR_CANNOT_INSERT)
+			return ERROR_CANNOT_INSERT;
+		int oldHeight;
+		boolean hadToUpdateHeight = false;
+		if (countOperations != ERROR_CANNOT_INSERT) {
+			oldHeight = location.getHeight();
+			location.update();
+			if (oldHeight != location.getHeight())
+				hadToUpdateHeight = true;
+		}
+
+		int balanceOperations = balance(location);
+		if (balanceOperations == 0) {
+			if (hadToUpdateHeight) {
+				//countOperations += 1;
+			} else {
+				// do nothing
+			}
+		} else if (balanceOperations > 0) {
+			// A promotion/rotation counts as one re-balance operation, double-rotation is
+			// counted as 2.
+			//countOperations += balanceOperations;
+		}
+
+		return 1+countOperations;
 	}
 
 

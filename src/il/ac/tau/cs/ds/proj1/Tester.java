@@ -26,10 +26,39 @@ public class Tester {
 		//q2.test();
 
 		//test();
-		randomActions();
+		//randomActions();
+
+		insertDecreasingOrder(1);
+		insertDecreasingOrder(2);
+		insertDecreasingOrder(3);
+		insertDecreasingOrder(4);
+		insertDecreasingOrder(5);
 		
 		System.out.println(String.format("Final statistics:\n\tASSERTION_TRIGGERS=%d\n\tTOTAL_INSERTIONS=%d\n\tTOTAL_DELETIONS=%d\n\tTOTAL_SPLITS=%d\n\tTOTAL_JOINS=%d\n\tTOTAL_BALANCE=%d", Logger.ASSERTION_TRIGGERS, Logger.TOTAL_INSERTIONS, Logger.TOTAL_DELETIONS, Logger.TOTAL_SPLITS, Logger.TOTAL_JOINS, Logger.TOTAL_BALANCE));
 		assert(Logger.ASSERTION_TRIGGERS == 0);
+	}
+	
+	static void insertDecreasingOrder(int i) {
+		int treeSize, costDec;
+		AVLTree treeDecreasing;
+		List<Integer> insertionsRan;
+		
+		
+		treeSize = 1000*((int)Math.pow(2, i));
+		treeDecreasing = new AVLTree();
+
+		insertionsRan = new ArrayList<Integer>();
+		for (int k=1; k<=treeSize; k++) insertionsRan.add(k);
+		Collections.shuffle(insertionsRan, new Random(SEED));
+		
+		costDec = 0;
+		for (int k=treeSize-1; k>=0; k--) {
+//			System.out.println(String.format("lala %d, %d", k, insertionsRan.get(k)));
+			costDec += treeDecreasing.fingerInsertion(insertionsRan.get(k), null);
+//			System.out.println(String.format("lala %d, %d", k, insertionsRan.get(k)));
+		}
+
+		System.out.println(String.format("i=%d, costRan=%d", i, costDec));
 	}
 
 	
