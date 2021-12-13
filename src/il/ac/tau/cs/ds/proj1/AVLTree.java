@@ -1001,7 +1001,7 @@ public class AVLTree {
 	 * @pre: String k == value of new node
 	 * @post: distance between new node and biggest child of root
 	 * @cost: O(k) where k is the distance between our key and maximum value
-	 * @complexity: O(logn)
+	 * @complexity: O(logk)
 	 */
 	public int fingerInsertion(int k, String i) {
 		if (root == null) {

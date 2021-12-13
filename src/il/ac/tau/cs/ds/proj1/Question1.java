@@ -31,7 +31,7 @@ public class Question1 {
 		}
 		
 		for (int i=1; i<=5; i++) {
-			int treeMax = 2000*((int)Math.pow(2, i));
+			int treeMax = 	000*((int)Math.pow(2, i));
 			List<Integer> insertionsDec, insertionsRan;
 			insertionsDec = new ArrayList<Integer>();
 			for (int k=treeMax-1; k>=0; k--) insertionsDec.add(k);
