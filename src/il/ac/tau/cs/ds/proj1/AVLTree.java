@@ -233,7 +233,7 @@ public class AVLTree {
 	 * 
 	 * @post: AVLTree[] with splitted arrays
 	 * @post: completely destroyed tree (you said postcondition is none)
-	 * @complexity: O((logn)^2)
+	 * @complexity: O(logn)
 	 */
 	public AVLTree[] split(int x) {
 		Logger.TOTAL_SPLITS += 1;
@@ -397,7 +397,7 @@ public class AVLTree {
 	 * 
 	 * @post: AVLTree[] with splitted arrays
 	 * @post: completely destroyed tree (you said postcondition is none)
-	 * @complexity: O((logn)^2)
+	 * @complexity: O(logn)
 	 */
 	private AVLTree[] splitHelper(int x) {
 		joinCostTotal = 0;
