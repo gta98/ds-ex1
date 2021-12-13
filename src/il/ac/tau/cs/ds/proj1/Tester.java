@@ -25,8 +25,8 @@ public class Tester {
 		q1.test();
 		//q2.test();
 
-		//test();
-		//randomActions();
+		test();
+		randomActions();
 
 		insertDecreasingOrder(1);
 		insertDecreasingOrder(2);
